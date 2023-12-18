@@ -5,9 +5,9 @@ project:
     port: 3333
 
 website:
-  title: "MUSA 550 Quarto Template"
-  site-url: "https://musa-550-fall-2023.github.io/quarto-website-template" 
-  repo-url: https://github.com/MUSA-550-Fall-2023/quarto-website-template 
+  title: "MUSA 550 Project"
+  site-url: "https://lamahr0.github.io/MUSA550_Project-" 
+  repo-url: https://github.com/lamahr0/MUSA550_Project- 
   repo-actions: [source]
 
   page-footer:
@@ -39,7 +39,7 @@ website:
       - section: analysis/index.qmd
         contents:
           - analysis/1-python-code-blocks.qmd 
-          - analysis/2-static-images.ipynb
+          - analysis/Urban Parks Impact.ipynb
           - analysis/3-altair-hvplot.ipynb
           - analysis/4-folium.ipynb
 
