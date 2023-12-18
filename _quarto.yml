@@ -23,7 +23,7 @@ website:
         href: https://nickhand.dev
         text: "Personal Website"
       - icon: github
-        href: https://github.com/MUSA-550-Fall-2023/
+        href: https://google.com
         text: "MUSA 550 GitHub"
       - icon: twitter
         href: https://twitter.com/nicholashand
@@ -39,7 +39,7 @@ website:
       - section: analysis/index.qmd
         contents:
           - analysis/1-python-code-blocks.qmd 
-          - analysis/Urban Parks Impact.ipynb
+          - analysis/2-Urban-Parks-Impact.ipynb
           - analysis/3-altair-hvplot.ipynb
           - analysis/4-folium.ipynb
 
