@@ -19,15 +19,13 @@ website:
     pinned: true
     align: center
     tools: 
-      - icon: globe
-        href: https://nickhand.dev
-        text: "Personal Website"
+      - icon: linkedin
+        href: https://www.linkedin.com/in/lama-alharbi-3b675b127/
+        text: "linkedin"
       - icon: github
-        href: https://google.com
-        text: "MUSA 550 GitHub"
-      - icon: twitter
-        href: https://twitter.com/nicholashand
-        text: "Nick Hand Twitter"         
+        href: https://github.com/lamahr0
+        text: "Github"
+   
 
     style: "docked"
     search: true
@@ -38,10 +36,10 @@ website:
       - about.qmd
       - section: analysis/index.qmd
         contents:
-          - analysis/1-python-code-blocks.qmd 
-          - analysis/2-Urban-Parks-Impact.ipynb
+          - analysis/1-Urban_demo.ipynb
           - analysis/3-altair-hvplot.ipynb
           - analysis/4-folium.ipynb
+
 
 format:
   html:
