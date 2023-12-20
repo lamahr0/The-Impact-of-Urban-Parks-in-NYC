@@ -6,13 +6,13 @@ project:
 
 website:
   title: "MUSA 550 Project"
-  site-url: "https://lamahr0.github.io/MUSA550_Project-" 
-  repo-url: https://github.com/lamahr0/MUSA550_Project- 
+  site-url: "https://lamahr0.github.io/final-project-lama-alharbi/" 
+  repo-url: https://lamahr0.github.io/final-project-lama-alharbi/
   repo-actions: [source]
 
   page-footer:
     right: "This page is built with ❤️ and [Quarto](https://quarto.org/)."
-    left: "&copy; CC-Nick Hand, 2023"
+    left: "&copy; "
 
   sidebar:
     logo: "images/course-icon.png"
@@ -37,8 +37,7 @@ website:
       - section: analysis/index.qmd
         contents:
           - analysis/1-Demographics_Study.ipynb
-          - analysis/3-altair-hvplot.ipynb
-          - analysis/4-folium.ipynb
+          - analysis/Estate_env.ipynb
 
 
 format:
