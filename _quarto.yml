@@ -36,7 +36,7 @@ website:
       - about.qmd
       - section: analysis/index.qmd
         contents:
-          - analysis/1-Urban_demo.ipynb
+          - analysis/1-Demographics_Study.ipynb
           - analysis/3-altair-hvplot.ipynb
           - analysis/4-folium.ipynb
 
