@@ -185,9 +185,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul>
   <li><a href="#are-property-values-higher-in-neighborhoods-with-proximity-to-parks" id="toc-are-property-values-higher-in-neighborhoods-with-proximity-to-parks" class="nav-link active" data-scroll-target="#are-property-values-higher-in-neighborhoods-with-proximity-to-parks">Are property values higher in neighborhoods with proximity to parks?</a></li>
   <li><a href="#what-are-the-predominant-land-use-around-urban-parks-in-nyc" id="toc-what-are-the-predominant-land-use-around-urban-parks-in-nyc" class="nav-link" data-scroll-target="#what-are-the-predominant-land-use-around-urban-parks-in-nyc">What are the predominant land use around urban parks in NYC?</a></li>
-  <li><a href="#how-does-the-land-use-composition-of-an-area-residential-commercial-industrial-affect-the-temperature-reduction-impact-of-nearby-parks" id="toc-how-does-the-land-use-composition-of-an-area-residential-commercial-industrial-affect-the-temperature-reduction-impact-of-nearby-parks" class="nav-link" data-scroll-target="#how-does-the-land-use-composition-of-an-area-residential-commercial-industrial-affect-the-temperature-reduction-impact-of-nearby-parks">How does the land use composition of an area (residential, commercial, industrial) affect the temperature reduction impact of nearby parks?</a></li>
-  <li><a href="#do-the-presence-of-parks-affect-the-surface-temperature" id="toc-do-the-presence-of-parks-affect-the-surface-temperature" class="nav-link" data-scroll-target="#do-the-presence-of-parks-affect-the-surface-temperature">&amp; Do the presence of parks affect the surface temperature?</a></li>
+  <li><a href="#how-does-the-land-use-of-an-area-residential-commercial-affect-the-temperature-reduction-impact-of-nearby-parks" id="toc-how-does-the-land-use-of-an-area-residential-commercial-affect-the-temperature-reduction-impact-of-nearby-parks" class="nav-link" data-scroll-target="#how-does-the-land-use-of-an-area-residential-commercial-affect-the-temperature-reduction-impact-of-nearby-parks">How does the land use of an area (residential, commercial) affect the temperature reduction impact of nearby parks?</a></li>
   <li><a href="#is-there-a-corrleation-between-vegetative-cover-and-surface-temperature" id="toc-is-there-a-corrleation-between-vegetative-cover-and-surface-temperature" class="nav-link" data-scroll-target="#is-there-a-corrleation-between-vegetative-cover-and-surface-temperature">Is there a corrleation between vegetative cover and surface temperature</a></li>
+  <li><a href="#concluison" id="toc-concluison" class="nav-link" data-scroll-target="#concluison">Concluison</a></li>
   </ul>
 <div class="toc-actions"><div><i class="bi bi-git"></i></div><div class="action-links"><p><a href="https://lamahr0.github.io/final-project-lama-alharbi/blob/main/analysis/Estate_env.ipynb" class="toc-action">View source</a></p></div></div></nav>
     </div>
@@ -211,1394 +211,305 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 </header>
 
+<p>Proximity to parks is consdiered as a desirable feature by homeowners and real estate investors. In order to understand the impact of this preference on the real estate market, an analysis is conducted using the NYC property dataset. This dataset records the sale of every building or building unit (apartment, etc.) within the New York City property market over a 12-month period, spanning from 2003 to the present. The original source for the dataset is the New York City Department of Finance’s comprehensive Rolling Sales data.</p>
 <section id="are-property-values-higher-in-neighborhoods-with-proximity-to-parks" class="level1">
 <h1>Are property values higher in neighborhoods with proximity to parks?</h1>
-<div class="cell" data-execution_count="1">
+<div class="cell" data-scrolled="true" data-execution_count="1">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> altair <span class="im">as</span> alt</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> geopandas <span class="im">as</span> gpd</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> json</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> folium</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pygris</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> cenpy</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> re</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> copy</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> warnings</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> holoviews <span class="im">as</span> hv</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> hvplot.pandas </span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> holoviews <span class="im">import</span> opts</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>hv.extension(<span class="st">'bokeh'</span>)</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> ipywidgets <span class="im">as</span> widgets</span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> ipywidgets <span class="im">import</span> interact</span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.stats <span class="im">import</span> pearsonr</span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> warnings</span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> folium <span class="im">import</span> Map, Marker</span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> IPython.display <span class="im">import</span> IFrame</span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> cenpy</span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns </span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pygris</span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> geopandas <span class="im">as</span> gpd</span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>pd.options.mode.chained_assignment <span class="op">=</span> <span class="va">None</span></span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>pd.set_option(<span class="st">'mode.chained_assignment'</span>, <span class="va">None</span>)</span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> warnings</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Suppress all warnings</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> ipywidgets <span class="im">as</span> widgets</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> ipywidgets <span class="im">import</span> interact</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.stats <span class="im">import</span> pearsonr</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> warnings</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> folium <span class="im">import</span> Map, Marker</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> IPython.display <span class="im">import</span> IFrame</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> cenpy</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> json</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> folium</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns </span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pygris</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> geopandas <span class="im">as</span> gpd</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>pd.options.mode.chained_assignment <span class="op">=</span> <span class="va">None</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>pd.set_option(<span class="st">'mode.chained_assignment'</span>, <span class="va">None</span>)</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> warnings</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>warnings.filterwarnings(<span class="st">'ignore'</span>)</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>pd.set_option(<span class="st">'mode.chained_assignment'</span>, <span class="va">None</span>)</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="co">#ref https://www.nyc.gov/assets/finance/downloads/pdf/07pdf/glossary_rsf071607.pdf</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>sales <span class="op">=</span> pd.read_csv(<span class="st">"nyc-property-sales.csv"</span> )</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>sales.drop_duplicates(inplace<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>sales.dropna(inplace<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>sales[<span class="st">' ZIP CODE'</span>] <span class="op">=</span> pd.to_numeric(sales[<span class="st">' ZIP CODE'</span>], errors<span class="op">=</span><span class="st">'coerce'</span>)</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>sales <span class="op">=</span> sales.dropna(subset<span class="op">=</span>[<span class="st">' ZIP CODE'</span>])</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>sales[<span class="st">'SALE DATE'</span>] <span class="op">=</span> pd.to_datetime(sales[<span class="st">'SALE DATE'</span>])</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>sales[<span class="st">'year'</span>] <span class="op">=</span> sales[<span class="st">'SALE DATE'</span>].dt.year</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>sales.replace(<span class="st">' -  '</span>, <span class="dv">0</span>,  inplace<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>sales.replace(np.nan,<span class="dv">0</span>, inplace<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>sales[<span class="st">'SALE PRICE'</span>] <span class="op">=</span> sales[<span class="st">'SALE PRICE'</span>].astype(<span class="bu">float</span>)</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>sales[<span class="st">'SALE_PRICE_M'</span>] <span class="op">=</span> sales[<span class="st">'SALE PRICE'</span>].astype(np.float64) <span class="op">/</span> <span class="dv">1000000</span></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> calculate_mean_sales(df,zip_codes):</span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>    df <span class="op">=</span> df[df[<span class="st">' ZIP CODE'</span>].isin(zip_codes)]</span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>    mean_sales_by_year <span class="op">=</span> df.groupby(<span class="st">'year'</span>)[<span class="st">'SALE_PRICE_M'</span>].mean().reset_index()</span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> mean_sales_by_year</span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>high_line <span class="op">=</span> [<span class="dv">10001</span>, <span class="dv">10011</span>, <span class="dv">10018</span>]</span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>hl <span class="op">=</span> calculate_mean_sales(sales,high_line)</span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>hl[<span class="st">'park'</span>] <span class="op">=</span> <span class="st">'High Line'</span></span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a><span class="co">#central sales </span></span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>Central <span class="op">=</span>  [<span class="dv">10019</span>, <span class="dv">10023</span>, <span class="dv">10024</span>, <span class="dv">10025</span>]</span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>cn <span class="op">=</span> calculate_mean_sales(sales,Central)</span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>cn[<span class="st">'park'</span>] <span class="op">=</span> <span class="st">'Central Park'</span></span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a><span class="co">#Prospect sales </span></span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>Prospect <span class="op">=</span> [<span class="dv">11215</span>, <span class="dv">11217</span>, <span class="dv">11218</span>]</span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a>pr <span class="op">=</span> calculate_mean_sales(sales,Prospect)</span>
+<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a>pr[<span class="st">'park'</span>] <span class="op">=</span> <span class="st">'Prospect Park'</span></span>
+<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a><span class="co">#Brooklyn Bridge sales </span></span>
+<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a>BrooklynBridge <span class="op">=</span>  [<span class="dv">11201</span>, <span class="dv">11205</span>, <span class="dv">11217</span>]</span>
+<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a>Brooklyn <span class="op">=</span> calculate_mean_sales(sales,BrooklynBridge)</span>
+<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a>Brooklyn[<span class="st">'park'</span>] <span class="op">=</span> <span class="st">'Brooklyn Park'</span></span>
+<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a><span class="co">#Flushing sales </span></span>
+<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a>Flushing_Park <span class="op">=</span>[<span class="dv">11368</span>, <span class="dv">11369</span>, <span class="dv">11373</span>]</span>
+<span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a>fp <span class="op">=</span> calculate_mean_sales(sales,Flushing_Park)</span>
+<span id="cb1-62"><a href="#cb1-62" aria-hidden="true" tabindex="-1"></a>fp[<span class="st">'park'</span>] <span class="op">=</span> <span class="st">'Flushing Park'</span></span>
+<span id="cb1-63"><a href="#cb1-63" aria-hidden="true" tabindex="-1"></a><span class="co">#Battery sales </span></span>
+<span id="cb1-64"><a href="#cb1-64" aria-hidden="true" tabindex="-1"></a>Battery<span class="op">=</span> [<span class="dv">10004</span>, <span class="dv">10005</span>, <span class="dv">10006</span>]</span>
+<span id="cb1-65"><a href="#cb1-65" aria-hidden="true" tabindex="-1"></a>bt <span class="op">=</span> calculate_mean_sales(sales,Battery)</span>
+<span id="cb1-66"><a href="#cb1-66" aria-hidden="true" tabindex="-1"></a>bt[<span class="st">'park'</span>] <span class="op">=</span> <span class="st">'Battery Park'</span></span>
+<span id="cb1-67"><a href="#cb1-67" aria-hidden="true" tabindex="-1"></a>bt <span class="op">=</span> calculate_mean_sales(sales,Battery)</span>
+<span id="cb1-68"><a href="#cb1-68" aria-hidden="true" tabindex="-1"></a>bt[<span class="st">'park'</span>] <span class="op">=</span> <span class="st">'Battery Park'</span></span>
+<span id="cb1-69"><a href="#cb1-69" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-70"><a href="#cb1-70" aria-hidden="true" tabindex="-1"></a>overall <span class="op">=</span> sales.groupby(<span class="st">'year'</span>)[<span class="st">'SALE_PRICE_M'</span>].mean().reset_index()</span>
+<span id="cb1-71"><a href="#cb1-71" aria-hidden="true" tabindex="-1"></a>overall[<span class="st">'park'</span>] <span class="op">=</span> <span class="st">'NYC'</span></span>
+<span id="cb1-72"><a href="#cb1-72" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-73"><a href="#cb1-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-74"><a href="#cb1-74" aria-hidden="true" tabindex="-1"></a>mean_sales <span class="op">=</span> pd.concat([hl, cn, pr ,Brooklyn , fp , bt , overall], ignore_index<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb1-75"><a href="#cb1-75" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">6</span>))</span>
+<span id="cb1-76"><a href="#cb1-76" aria-hidden="true" tabindex="-1"></a>sns.lineplot(x<span class="op">=</span><span class="st">'year'</span>, y<span class="op">=</span><span class="st">'SALE_PRICE_M'</span>, hue<span class="op">=</span><span class="st">'park'</span>, data<span class="op">=</span>mean_sales, marker<span class="op">=</span><span class="st">'o'</span> ,palette<span class="op">=</span><span class="st">'deep'</span> )</span>
+<span id="cb1-77"><a href="#cb1-77" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'Date'</span>)</span>
+<span id="cb1-78"><a href="#cb1-78" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'Sales ( Millions $)'</span>)</span>
+<span id="cb1-79"><a href="#cb1-79" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Mean Prices for Property Sales in Areas Around Parks'</span>)</span>
+<span id="cb1-80"><a href="#cb1-80" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-display">
-
-<script type="application/javascript">
-(function(root) {
-  function now() {
-    return new Date();
-  }
-
-  var force = true;
-  var py_version = '3.2.1'.replace('rc', '-rc.').replace('.dev', '-dev.');
-  var is_dev = py_version.indexOf("+") !== -1 || py_version.indexOf("-") !== -1;
-  var reloading = false;
-  var Bokeh = root.Bokeh;
-  var bokeh_loaded = Bokeh != null && (Bokeh.version === py_version || (Bokeh.versions !== undefined && Bokeh.versions.has(py_version)));
-
-  if (typeof (root._bokeh_timeout) === "undefined" || force) {
-    root._bokeh_timeout = Date.now() + 5000;
-    root._bokeh_failed_load = false;
-  }
-
-  function run_callbacks() {
-    try {
-      root._bokeh_onload_callbacks.forEach(function(callback) {
-        if (callback != null)
-          callback();
-      });
-    } finally {
-      delete root._bokeh_onload_callbacks;
-    }
-    console.debug("Bokeh: all callbacks have finished");
-  }
-
-  function load_libs(css_urls, js_urls, js_modules, js_exports, callback) {
-    if (css_urls == null) css_urls = [];
-    if (js_urls == null) js_urls = [];
-    if (js_modules == null) js_modules = [];
-    if (js_exports == null) js_exports = {};
-
-    root._bokeh_onload_callbacks.push(callback);
-
-    if (root._bokeh_is_loading > 0) {
-      console.debug("Bokeh: BokehJS is being loaded, scheduling callback at", now());
-      return null;
-    }
-    if (js_urls.length === 0 && js_modules.length === 0 && Object.keys(js_exports).length === 0) {
-      run_callbacks();
-      return null;
-    }
-    if (!reloading) {
-      console.debug("Bokeh: BokehJS not loaded, scheduling load and callback at", now());
-    }
-
-    function on_load() {
-      root._bokeh_is_loading--;
-      if (root._bokeh_is_loading === 0) {
-        console.debug("Bokeh: all BokehJS libraries/stylesheets loaded");
-        run_callbacks()
-      }
-    }
-    window._bokeh_on_load = on_load
-
-    function on_error() {
-      console.error("failed to load " + url);
-    }
-
-    var skip = [];
-    if (window.requirejs) {
-      window.requirejs.config({'packages': {}, 'paths': {'jspanel': 'https://cdn.jsdelivr.net/npm/jspanel4@4.12.0/dist/jspanel', 'jspanel-modal': 'https://cdn.jsdelivr.net/npm/jspanel4@4.12.0/dist/extensions/modal/jspanel.modal', 'jspanel-tooltip': 'https://cdn.jsdelivr.net/npm/jspanel4@4.12.0/dist/extensions/tooltip/jspanel.tooltip', 'jspanel-hint': 'https://cdn.jsdelivr.net/npm/jspanel4@4.12.0/dist/extensions/hint/jspanel.hint', 'jspanel-layout': 'https://cdn.jsdelivr.net/npm/jspanel4@4.12.0/dist/extensions/layout/jspanel.layout', 'jspanel-contextmenu': 'https://cdn.jsdelivr.net/npm/jspanel4@4.12.0/dist/extensions/contextmenu/jspanel.contextmenu', 'jspanel-dock': 'https://cdn.jsdelivr.net/npm/jspanel4@4.12.0/dist/extensions/dock/jspanel.dock', 'gridstack': 'https://cdn.jsdelivr.net/npm/gridstack@7.2.3/dist/gridstack-all', 'notyf': 'https://cdn.jsdelivr.net/npm/notyf@3/notyf.min'}, 'shim': {'jspanel': {'exports': 'jsPanel'}, 'gridstack': {'exports': 'GridStack'}}});
-      require(["jspanel"], function(jsPanel) {
-    window.jsPanel = jsPanel
-    on_load()
-      })
-      require(["jspanel-modal"], function() {
-    on_load()
-      })
-      require(["jspanel-tooltip"], function() {
-    on_load()
-      })
-      require(["jspanel-hint"], function() {
-    on_load()
-      })
-      require(["jspanel-layout"], function() {
-    on_load()
-      })
-      require(["jspanel-contextmenu"], function() {
-    on_load()
-      })
-      require(["jspanel-dock"], function() {
-    on_load()
-      })
-      require(["gridstack"], function(GridStack) {
-    window.GridStack = GridStack
-    on_load()
-      })
-      require(["notyf"], function() {
-    on_load()
-      })
-      root._bokeh_is_loading = css_urls.length + 9;
-    } else {
-      root._bokeh_is_loading = css_urls.length + js_urls.length + js_modules.length + Object.keys(js_exports).length;
-    }
-
-    var existing_stylesheets = []
-    var links = document.getElementsByTagName('link')
-    for (var i = 0; i < links.length; i++) {
-      var link = links[i]
-      if (link.href != null) {
-    existing_stylesheets.push(link.href)
-      }
-    }
-    for (var i = 0; i < css_urls.length; i++) {
-      var url = css_urls[i];
-      if (existing_stylesheets.indexOf(url) !== -1) {
-    on_load()
-    continue;
-      }
-      const element = document.createElement("link");
-      element.onload = on_load;
-      element.onerror = on_error;
-      element.rel = "stylesheet";
-      element.type = "text/css";
-      element.href = url;
-      console.debug("Bokeh: injecting link tag for BokehJS stylesheet: ", url);
-      document.body.appendChild(element);
-    }    if (((window['jsPanel'] !== undefined) && (!(window['jsPanel'] instanceof HTMLElement))) || window.requirejs) {
-      var urls = ['https://cdn.holoviz.org/panel/1.2.3/dist/bundled/floatpanel/jspanel4@4.12.0/dist/jspanel.js', 'https://cdn.holoviz.org/panel/1.2.3/dist/bundled/floatpanel/jspanel4@4.12.0/dist/extensions/modal/jspanel.modal.js', 'https://cdn.holoviz.org/panel/1.2.3/dist/bundled/floatpanel/jspanel4@4.12.0/dist/extensions/tooltip/jspanel.tooltip.js', 'https://cdn.holoviz.org/panel/1.2.3/dist/bundled/floatpanel/jspanel4@4.12.0/dist/extensions/hint/jspanel.hint.js', 'https://cdn.holoviz.org/panel/1.2.3/dist/bundled/floatpanel/jspanel4@4.12.0/dist/extensions/layout/jspanel.layout.js', 'https://cdn.holoviz.org/panel/1.2.3/dist/bundled/floatpanel/jspanel4@4.12.0/dist/extensions/contextmenu/jspanel.contextmenu.js', 'https://cdn.holoviz.org/panel/1.2.3/dist/bundled/floatpanel/jspanel4@4.12.0/dist/extensions/dock/jspanel.dock.js'];
-      for (var i = 0; i < urls.length; i++) {
-        skip.push(urls[i])
-      }
-    }    if (((window['GridStack'] !== undefined) && (!(window['GridStack'] instanceof HTMLElement))) || window.requirejs) {
-      var urls = ['https://cdn.holoviz.org/panel/1.2.3/dist/bundled/gridstack/gridstack@7.2.3/dist/gridstack-all.js'];
-      for (var i = 0; i < urls.length; i++) {
-        skip.push(urls[i])
-      }
-    }    if (((window['Notyf'] !== undefined) && (!(window['Notyf'] instanceof HTMLElement))) || window.requirejs) {
-      var urls = ['https://cdn.holoviz.org/panel/1.2.3/dist/bundled/notificationarea/notyf@3/notyf.min.js'];
-      for (var i = 0; i < urls.length; i++) {
-        skip.push(urls[i])
-      }
-    }    var existing_scripts = []
-    var scripts = document.getElementsByTagName('script')
-    for (var i = 0; i < scripts.length; i++) {
-      var script = scripts[i]
-      if (script.src != null) {
-    existing_scripts.push(script.src)
-      }
-    }
-    for (var i = 0; i < js_urls.length; i++) {
-      var url = js_urls[i];
-      if (skip.indexOf(url) !== -1 || existing_scripts.indexOf(url) !== -1) {
-    if (!window.requirejs) {
-      on_load();
-    }
-    continue;
-      }
-      var element = document.createElement('script');
-      element.onload = on_load;
-      element.onerror = on_error;
-      element.async = false;
-      element.src = url;
-      console.debug("Bokeh: injecting script tag for BokehJS library: ", url);
-      document.head.appendChild(element);
-    }
-    for (var i = 0; i < js_modules.length; i++) {
-      var url = js_modules[i];
-      if (skip.indexOf(url) !== -1 || existing_scripts.indexOf(url) !== -1) {
-    if (!window.requirejs) {
-      on_load();
-    }
-    continue;
-      }
-      var element = document.createElement('script');
-      element.onload = on_load;
-      element.onerror = on_error;
-      element.async = false;
-      element.src = url;
-      element.type = "module";
-      console.debug("Bokeh: injecting script tag for BokehJS library: ", url);
-      document.head.appendChild(element);
-    }
-    for (const name in js_exports) {
-      var url = js_exports[name];
-      if (skip.indexOf(url) >= 0 || root[name] != null) {
-    if (!window.requirejs) {
-      on_load();
-    }
-    continue;
-      }
-      var element = document.createElement('script');
-      element.onerror = on_error;
-      element.async = false;
-      element.type = "module";
-      console.debug("Bokeh: injecting script tag for BokehJS library: ", url);
-      element.textContent = `
-      import ${name} from "${url}"
-      window.${name} = ${name}
-      window._bokeh_on_load()
-      `
-      document.head.appendChild(element);
-    }
-    if (!js_urls.length && !js_modules.length) {
-      on_load()
-    }
-  };
-
-  function inject_raw_css(css) {
-    const element = document.createElement("style");
-    element.appendChild(document.createTextNode(css));
-    document.body.appendChild(element);
-  }
-
-  var js_urls = ["https://cdn.bokeh.org/bokeh/release/bokeh-3.2.1.min.js", "https://cdn.bokeh.org/bokeh/release/bokeh-gl-3.2.1.min.js", "https://cdn.bokeh.org/bokeh/release/bokeh-widgets-3.2.1.min.js", "https://cdn.bokeh.org/bokeh/release/bokeh-tables-3.2.1.min.js", "https://cdn.holoviz.org/panel/1.2.3/dist/panel.min.js"];
-  var js_modules = [];
-  var js_exports = {};
-  var css_urls = [];
-  var inline_js = [    function(Bokeh) {
-      Bokeh.set_log_level("info");
-    },
-function(Bokeh) {} // ensure no trailing comma for IE
-  ];
-
-  function run_inline_js() {
-    if ((root.Bokeh !== undefined) || (force === true)) {
-      for (var i = 0; i < inline_js.length; i++) {
-        inline_js[i].call(root, root.Bokeh);
-      }
-      // Cache old bokeh versions
-      if (Bokeh != undefined && !reloading) {
-    var NewBokeh = root.Bokeh;
-    if (Bokeh.versions === undefined) {
-      Bokeh.versions = new Map();
-    }
-    if (NewBokeh.version !== Bokeh.version) {
-      Bokeh.versions.set(NewBokeh.version, NewBokeh)
-    }
-    root.Bokeh = Bokeh;
-      }} else if (Date.now() < root._bokeh_timeout) {
-      setTimeout(run_inline_js, 100);
-    } else if (!root._bokeh_failed_load) {
-      console.log("Bokeh: BokehJS failed to load within specified timeout.");
-      root._bokeh_failed_load = true;
-    }
-    root._bokeh_is_initializing = false
-  }
-
-  function load_or_wait() {
-    // Implement a backoff loop that tries to ensure we do not load multiple
-    // versions of Bokeh and its dependencies at the same time.
-    // In recent versions we use the root._bokeh_is_initializing flag
-    // to determine whether there is an ongoing attempt to initialize
-    // bokeh, however for backward compatibility we also try to ensure
-    // that we do not start loading a newer (Panel>=1.0 and Bokeh>3) version
-    // before older versions are fully initialized.
-    if (root._bokeh_is_initializing && Date.now() > root._bokeh_timeout) {
-      root._bokeh_is_initializing = false;
-      root._bokeh_onload_callbacks = undefined;
-      console.log("Bokeh: BokehJS was loaded multiple times but one version failed to initialize.");
-      load_or_wait();
-    } else if (root._bokeh_is_initializing || (typeof root._bokeh_is_initializing === "undefined" && root._bokeh_onload_callbacks !== undefined)) {
-      setTimeout(load_or_wait, 100);
-    } else {
-      Bokeh = root.Bokeh;
-      bokeh_loaded = Bokeh != null && (Bokeh.version === py_version || (Bokeh.versions !== undefined && Bokeh.versions.has(py_version)));
-      root._bokeh_is_initializing = true
-      root._bokeh_onload_callbacks = []
-      if (!reloading && (!bokeh_loaded || is_dev)) {
-    root.Bokeh = undefined;
-      }
-      load_libs(css_urls, js_urls, js_modules, js_exports, function() {
-    console.debug("Bokeh: BokehJS plotting callback run at", now());
-    run_inline_js();
-      });
-    }
-  }
-  // Give older versions of the autoload script a head-start to ensure
-  // they initialize before we start loading newer version.
-  setTimeout(load_or_wait, 100)
-}(window));
-</script>
-</div>
-<div class="cell-output cell-output-display">
-<script type="application/javascript">
-
-if ((window.PyViz === undefined) || (window.PyViz instanceof HTMLElement)) {
-  window.PyViz = {comms: {}, comm_status:{}, kernels:{}, receivers: {}, plot_index: []}
-}
-
-
-    function JupyterCommManager() {
-    }
-
-    JupyterCommManager.prototype.register_target = function(plot_id, comm_id, msg_handler) {
-      if (window.comm_manager || ((window.Jupyter !== undefined) && (Jupyter.notebook.kernel != null))) {
-        var comm_manager = window.comm_manager || Jupyter.notebook.kernel.comm_manager;
-        comm_manager.register_target(comm_id, function(comm) {
-          comm.on_msg(msg_handler);
-        });
-      } else if ((plot_id in window.PyViz.kernels) && (window.PyViz.kernels[plot_id])) {
-        window.PyViz.kernels[plot_id].registerCommTarget(comm_id, function(comm) {
-          comm.onMsg = msg_handler;
-        });
-      } else if (typeof google != 'undefined' && google.colab.kernel != null) {
-        google.colab.kernel.comms.registerTarget(comm_id, (comm) => {
-          var messages = comm.messages[Symbol.asyncIterator]();
-          function processIteratorResult(result) {
-            var message = result.value;
-            console.log(message)
-            var content = {data: message.data, comm_id};
-            var buffers = []
-            for (var buffer of message.buffers || []) {
-              buffers.push(new DataView(buffer))
-            }
-            var metadata = message.metadata || {};
-            var msg = {content, buffers, metadata}
-            msg_handler(msg);
-            return messages.next().then(processIteratorResult);
-          }
-          return messages.next().then(processIteratorResult);
-        })
-      }
-    }
-
-    JupyterCommManager.prototype.get_client_comm = function(plot_id, comm_id, msg_handler) {
-      if (comm_id in window.PyViz.comms) {
-        return window.PyViz.comms[comm_id];
-      } else if (window.comm_manager || ((window.Jupyter !== undefined) && (Jupyter.notebook.kernel != null))) {
-        var comm_manager = window.comm_manager || Jupyter.notebook.kernel.comm_manager;
-        var comm = comm_manager.new_comm(comm_id, {}, {}, {}, comm_id);
-        if (msg_handler) {
-          comm.on_msg(msg_handler);
-        }
-      } else if ((plot_id in window.PyViz.kernels) && (window.PyViz.kernels[plot_id])) {
-        var comm = window.PyViz.kernels[plot_id].connectToComm(comm_id);
-        comm.open();
-        if (msg_handler) {
-          comm.onMsg = msg_handler;
-        }
-      } else if (typeof google != 'undefined' && google.colab.kernel != null) {
-        var comm_promise = google.colab.kernel.comms.open(comm_id)
-        comm_promise.then((comm) => {
-          window.PyViz.comms[comm_id] = comm;
-          if (msg_handler) {
-            var messages = comm.messages[Symbol.asyncIterator]();
-            function processIteratorResult(result) {
-              var message = result.value;
-              var content = {data: message.data};
-              var metadata = message.metadata || {comm_id};
-              var msg = {content, metadata}
-              msg_handler(msg);
-              return messages.next().then(processIteratorResult);
-            }
-            return messages.next().then(processIteratorResult);
-          }
-        }) 
-        var sendClosure = (data, metadata, buffers, disposeOnDone) => {
-          return comm_promise.then((comm) => {
-            comm.send(data, metadata, buffers, disposeOnDone);
-          });
-        };
-        var comm = {
-          send: sendClosure
-        };
-      }
-      window.PyViz.comms[comm_id] = comm;
-      return comm;
-    }
-    window.PyViz.comm_manager = new JupyterCommManager();
-    
-
-
-var JS_MIME_TYPE = 'application/javascript';
-var HTML_MIME_TYPE = 'text/html';
-var EXEC_MIME_TYPE = 'application/vnd.holoviews_exec.v0+json';
-var CLASS_NAME = 'output';
-
-/**
- * Render data to the DOM node
- */
-function render(props, node) {
-  var div = document.createElement("div");
-  var script = document.createElement("script");
-  node.appendChild(div);
-  node.appendChild(script);
-}
-
-/**
- * Handle when a new output is added
- */
-function handle_add_output(event, handle) {
-  var output_area = handle.output_area;
-  var output = handle.output;
-  if ((output.data == undefined) || (!output.data.hasOwnProperty(EXEC_MIME_TYPE))) {
-    return
-  }
-  var id = output.metadata[EXEC_MIME_TYPE]["id"];
-  var toinsert = output_area.element.find("." + CLASS_NAME.split(' ')[0]);
-  if (id !== undefined) {
-    var nchildren = toinsert.length;
-    var html_node = toinsert[nchildren-1].children[0];
-    html_node.innerHTML = output.data[HTML_MIME_TYPE];
-    var scripts = [];
-    var nodelist = html_node.querySelectorAll("script");
-    for (var i in nodelist) {
-      if (nodelist.hasOwnProperty(i)) {
-        scripts.push(nodelist[i])
-      }
-    }
-
-    scripts.forEach( function (oldScript) {
-      var newScript = document.createElement("script");
-      var attrs = [];
-      var nodemap = oldScript.attributes;
-      for (var j in nodemap) {
-        if (nodemap.hasOwnProperty(j)) {
-          attrs.push(nodemap[j])
-        }
-      }
-      attrs.forEach(function(attr) { newScript.setAttribute(attr.name, attr.value) });
-      newScript.appendChild(document.createTextNode(oldScript.innerHTML));
-      oldScript.parentNode.replaceChild(newScript, oldScript);
-    });
-    if (JS_MIME_TYPE in output.data) {
-      toinsert[nchildren-1].children[1].textContent = output.data[JS_MIME_TYPE];
-    }
-    output_area._hv_plot_id = id;
-    if ((window.Bokeh !== undefined) && (id in Bokeh.index)) {
-      window.PyViz.plot_index[id] = Bokeh.index[id];
-    } else {
-      window.PyViz.plot_index[id] = null;
-    }
-  } else if (output.metadata[EXEC_MIME_TYPE]["server_id"] !== undefined) {
-    var bk_div = document.createElement("div");
-    bk_div.innerHTML = output.data[HTML_MIME_TYPE];
-    var script_attrs = bk_div.children[0].attributes;
-    for (var i = 0; i < script_attrs.length; i++) {
-      toinsert[toinsert.length - 1].childNodes[1].setAttribute(script_attrs[i].name, script_attrs[i].value);
-    }
-    // store reference to server id on output_area
-    output_area._bokeh_server_id = output.metadata[EXEC_MIME_TYPE]["server_id"];
-  }
-}
-
-/**
- * Handle when an output is cleared or removed
- */
-function handle_clear_output(event, handle) {
-  var id = handle.cell.output_area._hv_plot_id;
-  var server_id = handle.cell.output_area._bokeh_server_id;
-  if (((id === undefined) || !(id in PyViz.plot_index)) && (server_id !== undefined)) { return; }
-  var comm = window.PyViz.comm_manager.get_client_comm("hv-extension-comm", "hv-extension-comm", function () {});
-  if (server_id !== null) {
-    comm.send({event_type: 'server_delete', 'id': server_id});
-    return;
-  } else if (comm !== null) {
-    comm.send({event_type: 'delete', 'id': id});
-  }
-  delete PyViz.plot_index[id];
-  if ((window.Bokeh !== undefined) & (id in window.Bokeh.index)) {
-    var doc = window.Bokeh.index[id].model.document
-    doc.clear();
-    const i = window.Bokeh.documents.indexOf(doc);
-    if (i > -1) {
-      window.Bokeh.documents.splice(i, 1);
-    }
-  }
-}
-
-/**
- * Handle kernel restart event
- */
-function handle_kernel_cleanup(event, handle) {
-  delete PyViz.comms["hv-extension-comm"];
-  window.PyViz.plot_index = {}
-}
-
-/**
- * Handle update_display_data messages
- */
-function handle_update_output(event, handle) {
-  handle_clear_output(event, {cell: {output_area: handle.output_area}})
-  handle_add_output(event, handle)
-}
-
-function register_renderer(events, OutputArea) {
-  function append_mime(data, metadata, element) {
-    // create a DOM node to render to
-    var toinsert = this.create_output_subarea(
-    metadata,
-    CLASS_NAME,
-    EXEC_MIME_TYPE
-    );
-    this.keyboard_manager.register_events(toinsert);
-    // Render to node
-    var props = {data: data, metadata: metadata[EXEC_MIME_TYPE]};
-    render(props, toinsert[0]);
-    element.append(toinsert);
-    return toinsert
-  }
-
-  events.on('output_added.OutputArea', handle_add_output);
-  events.on('output_updated.OutputArea', handle_update_output);
-  events.on('clear_output.CodeCell', handle_clear_output);
-  events.on('delete.Cell', handle_clear_output);
-  events.on('kernel_ready.Kernel', handle_kernel_cleanup);
-
-  OutputArea.prototype.register_mime_type(EXEC_MIME_TYPE, append_mime, {
-    safe: true,
-    index: 0
-  });
-}
-
-if (window.Jupyter !== undefined) {
-  try {
-    var events = require('base/js/events');
-    var OutputArea = require('notebook/js/outputarea').OutputArea;
-    if (OutputArea.prototype.mime_types().indexOf(EXEC_MIME_TYPE) == -1) {
-      register_renderer(events, OutputArea);
-    }
-  } catch(err) {
-  }
-}
-
-</script>
-</div>
-<div class="cell-output cell-output-display">
-<style>*[data-root-id],
-*[data-root-id] > * {
-  box-sizing: border-box;
-  font-family: var(--jp-ui-font-family);
-  font-size: var(--jp-ui-font-size1);
-  color: var(--vscode-editor-foreground, var(--jp-ui-font-color1));
-}
-
-/* Override VSCode background color */
-.cell-output-ipywidget-background:has(
-    > .cell-output-ipywidget-background > .lm-Widget > *[data-root-id]
-  ),
-.cell-output-ipywidget-background:has(> .lm-Widget > *[data-root-id]) {
-  background-color: transparent !important;
-}
-</style>
-</div>
-<div class="cell-output cell-output-display">
-<script type="application/javascript">
-(function(root) {
-  function now() {
-    return new Date();
-  }
-
-  var force = true;
-  var py_version = '3.2.1'.replace('rc', '-rc.').replace('.dev', '-dev.');
-  var is_dev = py_version.indexOf("+") !== -1 || py_version.indexOf("-") !== -1;
-  var reloading = true;
-  var Bokeh = root.Bokeh;
-  var bokeh_loaded = Bokeh != null && (Bokeh.version === py_version || (Bokeh.versions !== undefined && Bokeh.versions.has(py_version)));
-
-  if (typeof (root._bokeh_timeout) === "undefined" || force) {
-    root._bokeh_timeout = Date.now() + 5000;
-    root._bokeh_failed_load = false;
-  }
-
-  function run_callbacks() {
-    try {
-      root._bokeh_onload_callbacks.forEach(function(callback) {
-        if (callback != null)
-          callback();
-      });
-    } finally {
-      delete root._bokeh_onload_callbacks;
-    }
-    console.debug("Bokeh: all callbacks have finished");
-  }
-
-  function load_libs(css_urls, js_urls, js_modules, js_exports, callback) {
-    if (css_urls == null) css_urls = [];
-    if (js_urls == null) js_urls = [];
-    if (js_modules == null) js_modules = [];
-    if (js_exports == null) js_exports = {};
-
-    root._bokeh_onload_callbacks.push(callback);
-
-    if (root._bokeh_is_loading > 0) {
-      console.debug("Bokeh: BokehJS is being loaded, scheduling callback at", now());
-      return null;
-    }
-    if (js_urls.length === 0 && js_modules.length === 0 && Object.keys(js_exports).length === 0) {
-      run_callbacks();
-      return null;
-    }
-    if (!reloading) {
-      console.debug("Bokeh: BokehJS not loaded, scheduling load and callback at", now());
-    }
-
-    function on_load() {
-      root._bokeh_is_loading--;
-      if (root._bokeh_is_loading === 0) {
-        console.debug("Bokeh: all BokehJS libraries/stylesheets loaded");
-        run_callbacks()
-      }
-    }
-    window._bokeh_on_load = on_load
-
-    function on_error() {
-      console.error("failed to load " + url);
-    }
-
-    var skip = [];
-    if (window.requirejs) {
-      window.requirejs.config({'packages': {}, 'paths': {'jspanel': 'https://cdn.jsdelivr.net/npm/jspanel4@4.12.0/dist/jspanel', 'jspanel-modal': 'https://cdn.jsdelivr.net/npm/jspanel4@4.12.0/dist/extensions/modal/jspanel.modal', 'jspanel-tooltip': 'https://cdn.jsdelivr.net/npm/jspanel4@4.12.0/dist/extensions/tooltip/jspanel.tooltip', 'jspanel-hint': 'https://cdn.jsdelivr.net/npm/jspanel4@4.12.0/dist/extensions/hint/jspanel.hint', 'jspanel-layout': 'https://cdn.jsdelivr.net/npm/jspanel4@4.12.0/dist/extensions/layout/jspanel.layout', 'jspanel-contextmenu': 'https://cdn.jsdelivr.net/npm/jspanel4@4.12.0/dist/extensions/contextmenu/jspanel.contextmenu', 'jspanel-dock': 'https://cdn.jsdelivr.net/npm/jspanel4@4.12.0/dist/extensions/dock/jspanel.dock', 'gridstack': 'https://cdn.jsdelivr.net/npm/gridstack@7.2.3/dist/gridstack-all', 'notyf': 'https://cdn.jsdelivr.net/npm/notyf@3/notyf.min'}, 'shim': {'jspanel': {'exports': 'jsPanel'}, 'gridstack': {'exports': 'GridStack'}}});
-      require(["jspanel"], function(jsPanel) {
-    window.jsPanel = jsPanel
-    on_load()
-      })
-      require(["jspanel-modal"], function() {
-    on_load()
-      })
-      require(["jspanel-tooltip"], function() {
-    on_load()
-      })
-      require(["jspanel-hint"], function() {
-    on_load()
-      })
-      require(["jspanel-layout"], function() {
-    on_load()
-      })
-      require(["jspanel-contextmenu"], function() {
-    on_load()
-      })
-      require(["jspanel-dock"], function() {
-    on_load()
-      })
-      require(["gridstack"], function(GridStack) {
-    window.GridStack = GridStack
-    on_load()
-      })
-      require(["notyf"], function() {
-    on_load()
-      })
-      root._bokeh_is_loading = css_urls.length + 9;
-    } else {
-      root._bokeh_is_loading = css_urls.length + js_urls.length + js_modules.length + Object.keys(js_exports).length;
-    }
-
-    var existing_stylesheets = []
-    var links = document.getElementsByTagName('link')
-    for (var i = 0; i < links.length; i++) {
-      var link = links[i]
-      if (link.href != null) {
-    existing_stylesheets.push(link.href)
-      }
-    }
-    for (var i = 0; i < css_urls.length; i++) {
-      var url = css_urls[i];
-      if (existing_stylesheets.indexOf(url) !== -1) {
-    on_load()
-    continue;
-      }
-      const element = document.createElement("link");
-      element.onload = on_load;
-      element.onerror = on_error;
-      element.rel = "stylesheet";
-      element.type = "text/css";
-      element.href = url;
-      console.debug("Bokeh: injecting link tag for BokehJS stylesheet: ", url);
-      document.body.appendChild(element);
-    }    if (((window['jsPanel'] !== undefined) && (!(window['jsPanel'] instanceof HTMLElement))) || window.requirejs) {
-      var urls = ['https://cdn.holoviz.org/panel/1.2.3/dist/bundled/floatpanel/jspanel4@4.12.0/dist/jspanel.js', 'https://cdn.holoviz.org/panel/1.2.3/dist/bundled/floatpanel/jspanel4@4.12.0/dist/extensions/modal/jspanel.modal.js', 'https://cdn.holoviz.org/panel/1.2.3/dist/bundled/floatpanel/jspanel4@4.12.0/dist/extensions/tooltip/jspanel.tooltip.js', 'https://cdn.holoviz.org/panel/1.2.3/dist/bundled/floatpanel/jspanel4@4.12.0/dist/extensions/hint/jspanel.hint.js', 'https://cdn.holoviz.org/panel/1.2.3/dist/bundled/floatpanel/jspanel4@4.12.0/dist/extensions/layout/jspanel.layout.js', 'https://cdn.holoviz.org/panel/1.2.3/dist/bundled/floatpanel/jspanel4@4.12.0/dist/extensions/contextmenu/jspanel.contextmenu.js', 'https://cdn.holoviz.org/panel/1.2.3/dist/bundled/floatpanel/jspanel4@4.12.0/dist/extensions/dock/jspanel.dock.js'];
-      for (var i = 0; i < urls.length; i++) {
-        skip.push(urls[i])
-      }
-    }    if (((window['GridStack'] !== undefined) && (!(window['GridStack'] instanceof HTMLElement))) || window.requirejs) {
-      var urls = ['https://cdn.holoviz.org/panel/1.2.3/dist/bundled/gridstack/gridstack@7.2.3/dist/gridstack-all.js'];
-      for (var i = 0; i < urls.length; i++) {
-        skip.push(urls[i])
-      }
-    }    if (((window['Notyf'] !== undefined) && (!(window['Notyf'] instanceof HTMLElement))) || window.requirejs) {
-      var urls = ['https://cdn.holoviz.org/panel/1.2.3/dist/bundled/notificationarea/notyf@3/notyf.min.js'];
-      for (var i = 0; i < urls.length; i++) {
-        skip.push(urls[i])
-      }
-    }    var existing_scripts = []
-    var scripts = document.getElementsByTagName('script')
-    for (var i = 0; i < scripts.length; i++) {
-      var script = scripts[i]
-      if (script.src != null) {
-    existing_scripts.push(script.src)
-      }
-    }
-    for (var i = 0; i < js_urls.length; i++) {
-      var url = js_urls[i];
-      if (skip.indexOf(url) !== -1 || existing_scripts.indexOf(url) !== -1) {
-    if (!window.requirejs) {
-      on_load();
-    }
-    continue;
-      }
-      var element = document.createElement('script');
-      element.onload = on_load;
-      element.onerror = on_error;
-      element.async = false;
-      element.src = url;
-      console.debug("Bokeh: injecting script tag for BokehJS library: ", url);
-      document.head.appendChild(element);
-    }
-    for (var i = 0; i < js_modules.length; i++) {
-      var url = js_modules[i];
-      if (skip.indexOf(url) !== -1 || existing_scripts.indexOf(url) !== -1) {
-    if (!window.requirejs) {
-      on_load();
-    }
-    continue;
-      }
-      var element = document.createElement('script');
-      element.onload = on_load;
-      element.onerror = on_error;
-      element.async = false;
-      element.src = url;
-      element.type = "module";
-      console.debug("Bokeh: injecting script tag for BokehJS library: ", url);
-      document.head.appendChild(element);
-    }
-    for (const name in js_exports) {
-      var url = js_exports[name];
-      if (skip.indexOf(url) >= 0 || root[name] != null) {
-    if (!window.requirejs) {
-      on_load();
-    }
-    continue;
-      }
-      var element = document.createElement('script');
-      element.onerror = on_error;
-      element.async = false;
-      element.type = "module";
-      console.debug("Bokeh: injecting script tag for BokehJS library: ", url);
-      element.textContent = `
-      import ${name} from "${url}"
-      window.${name} = ${name}
-      window._bokeh_on_load()
-      `
-      document.head.appendChild(element);
-    }
-    if (!js_urls.length && !js_modules.length) {
-      on_load()
-    }
-  };
-
-  function inject_raw_css(css) {
-    const element = document.createElement("style");
-    element.appendChild(document.createTextNode(css));
-    document.body.appendChild(element);
-  }
-
-  var js_urls = [];
-  var js_modules = [];
-  var js_exports = {};
-  var css_urls = [];
-  var inline_js = [    function(Bokeh) {
-      Bokeh.set_log_level("info");
-    },
-function(Bokeh) {} // ensure no trailing comma for IE
-  ];
-
-  function run_inline_js() {
-    if ((root.Bokeh !== undefined) || (force === true)) {
-      for (var i = 0; i < inline_js.length; i++) {
-        inline_js[i].call(root, root.Bokeh);
-      }
-      // Cache old bokeh versions
-      if (Bokeh != undefined && !reloading) {
-    var NewBokeh = root.Bokeh;
-    if (Bokeh.versions === undefined) {
-      Bokeh.versions = new Map();
-    }
-    if (NewBokeh.version !== Bokeh.version) {
-      Bokeh.versions.set(NewBokeh.version, NewBokeh)
-    }
-    root.Bokeh = Bokeh;
-      }} else if (Date.now() < root._bokeh_timeout) {
-      setTimeout(run_inline_js, 100);
-    } else if (!root._bokeh_failed_load) {
-      console.log("Bokeh: BokehJS failed to load within specified timeout.");
-      root._bokeh_failed_load = true;
-    }
-    root._bokeh_is_initializing = false
-  }
-
-  function load_or_wait() {
-    // Implement a backoff loop that tries to ensure we do not load multiple
-    // versions of Bokeh and its dependencies at the same time.
-    // In recent versions we use the root._bokeh_is_initializing flag
-    // to determine whether there is an ongoing attempt to initialize
-    // bokeh, however for backward compatibility we also try to ensure
-    // that we do not start loading a newer (Panel>=1.0 and Bokeh>3) version
-    // before older versions are fully initialized.
-    if (root._bokeh_is_initializing && Date.now() > root._bokeh_timeout) {
-      root._bokeh_is_initializing = false;
-      root._bokeh_onload_callbacks = undefined;
-      console.log("Bokeh: BokehJS was loaded multiple times but one version failed to initialize.");
-      load_or_wait();
-    } else if (root._bokeh_is_initializing || (typeof root._bokeh_is_initializing === "undefined" && root._bokeh_onload_callbacks !== undefined)) {
-      setTimeout(load_or_wait, 100);
-    } else {
-      Bokeh = root.Bokeh;
-      bokeh_loaded = Bokeh != null && (Bokeh.version === py_version || (Bokeh.versions !== undefined && Bokeh.versions.has(py_version)));
-      root._bokeh_is_initializing = true
-      root._bokeh_onload_callbacks = []
-      if (!reloading && (!bokeh_loaded || is_dev)) {
-    root.Bokeh = undefined;
-      }
-      load_libs(css_urls, js_urls, js_modules, js_exports, function() {
-    console.debug("Bokeh: BokehJS plotting callback run at", now());
-    run_inline_js();
-      });
-    }
-  }
-  // Give older versions of the autoload script a head-start to ensure
-  // they initialize before we start loading newer version.
-  setTimeout(load_or_wait, 100)
-}(window));
-</script>
-</div>
-<div class="cell-output cell-output-display">
-<script type="application/javascript">
-
-if ((window.PyViz === undefined) || (window.PyViz instanceof HTMLElement)) {
-  window.PyViz = {comms: {}, comm_status:{}, kernels:{}, receivers: {}, plot_index: []}
-}
-
-
-    function JupyterCommManager() {
-    }
-
-    JupyterCommManager.prototype.register_target = function(plot_id, comm_id, msg_handler) {
-      if (window.comm_manager || ((window.Jupyter !== undefined) && (Jupyter.notebook.kernel != null))) {
-        var comm_manager = window.comm_manager || Jupyter.notebook.kernel.comm_manager;
-        comm_manager.register_target(comm_id, function(comm) {
-          comm.on_msg(msg_handler);
-        });
-      } else if ((plot_id in window.PyViz.kernels) && (window.PyViz.kernels[plot_id])) {
-        window.PyViz.kernels[plot_id].registerCommTarget(comm_id, function(comm) {
-          comm.onMsg = msg_handler;
-        });
-      } else if (typeof google != 'undefined' && google.colab.kernel != null) {
-        google.colab.kernel.comms.registerTarget(comm_id, (comm) => {
-          var messages = comm.messages[Symbol.asyncIterator]();
-          function processIteratorResult(result) {
-            var message = result.value;
-            console.log(message)
-            var content = {data: message.data, comm_id};
-            var buffers = []
-            for (var buffer of message.buffers || []) {
-              buffers.push(new DataView(buffer))
-            }
-            var metadata = message.metadata || {};
-            var msg = {content, buffers, metadata}
-            msg_handler(msg);
-            return messages.next().then(processIteratorResult);
-          }
-          return messages.next().then(processIteratorResult);
-        })
-      }
-    }
-
-    JupyterCommManager.prototype.get_client_comm = function(plot_id, comm_id, msg_handler) {
-      if (comm_id in window.PyViz.comms) {
-        return window.PyViz.comms[comm_id];
-      } else if (window.comm_manager || ((window.Jupyter !== undefined) && (Jupyter.notebook.kernel != null))) {
-        var comm_manager = window.comm_manager || Jupyter.notebook.kernel.comm_manager;
-        var comm = comm_manager.new_comm(comm_id, {}, {}, {}, comm_id);
-        if (msg_handler) {
-          comm.on_msg(msg_handler);
-        }
-      } else if ((plot_id in window.PyViz.kernels) && (window.PyViz.kernels[plot_id])) {
-        var comm = window.PyViz.kernels[plot_id].connectToComm(comm_id);
-        comm.open();
-        if (msg_handler) {
-          comm.onMsg = msg_handler;
-        }
-      } else if (typeof google != 'undefined' && google.colab.kernel != null) {
-        var comm_promise = google.colab.kernel.comms.open(comm_id)
-        comm_promise.then((comm) => {
-          window.PyViz.comms[comm_id] = comm;
-          if (msg_handler) {
-            var messages = comm.messages[Symbol.asyncIterator]();
-            function processIteratorResult(result) {
-              var message = result.value;
-              var content = {data: message.data};
-              var metadata = message.metadata || {comm_id};
-              var msg = {content, metadata}
-              msg_handler(msg);
-              return messages.next().then(processIteratorResult);
-            }
-            return messages.next().then(processIteratorResult);
-          }
-        }) 
-        var sendClosure = (data, metadata, buffers, disposeOnDone) => {
-          return comm_promise.then((comm) => {
-            comm.send(data, metadata, buffers, disposeOnDone);
-          });
-        };
-        var comm = {
-          send: sendClosure
-        };
-      }
-      window.PyViz.comms[comm_id] = comm;
-      return comm;
-    }
-    window.PyViz.comm_manager = new JupyterCommManager();
-    
-
-
-var JS_MIME_TYPE = 'application/javascript';
-var HTML_MIME_TYPE = 'text/html';
-var EXEC_MIME_TYPE = 'application/vnd.holoviews_exec.v0+json';
-var CLASS_NAME = 'output';
-
-/**
- * Render data to the DOM node
- */
-function render(props, node) {
-  var div = document.createElement("div");
-  var script = document.createElement("script");
-  node.appendChild(div);
-  node.appendChild(script);
-}
-
-/**
- * Handle when a new output is added
- */
-function handle_add_output(event, handle) {
-  var output_area = handle.output_area;
-  var output = handle.output;
-  if ((output.data == undefined) || (!output.data.hasOwnProperty(EXEC_MIME_TYPE))) {
-    return
-  }
-  var id = output.metadata[EXEC_MIME_TYPE]["id"];
-  var toinsert = output_area.element.find("." + CLASS_NAME.split(' ')[0]);
-  if (id !== undefined) {
-    var nchildren = toinsert.length;
-    var html_node = toinsert[nchildren-1].children[0];
-    html_node.innerHTML = output.data[HTML_MIME_TYPE];
-    var scripts = [];
-    var nodelist = html_node.querySelectorAll("script");
-    for (var i in nodelist) {
-      if (nodelist.hasOwnProperty(i)) {
-        scripts.push(nodelist[i])
-      }
-    }
-
-    scripts.forEach( function (oldScript) {
-      var newScript = document.createElement("script");
-      var attrs = [];
-      var nodemap = oldScript.attributes;
-      for (var j in nodemap) {
-        if (nodemap.hasOwnProperty(j)) {
-          attrs.push(nodemap[j])
-        }
-      }
-      attrs.forEach(function(attr) { newScript.setAttribute(attr.name, attr.value) });
-      newScript.appendChild(document.createTextNode(oldScript.innerHTML));
-      oldScript.parentNode.replaceChild(newScript, oldScript);
-    });
-    if (JS_MIME_TYPE in output.data) {
-      toinsert[nchildren-1].children[1].textContent = output.data[JS_MIME_TYPE];
-    }
-    output_area._hv_plot_id = id;
-    if ((window.Bokeh !== undefined) && (id in Bokeh.index)) {
-      window.PyViz.plot_index[id] = Bokeh.index[id];
-    } else {
-      window.PyViz.plot_index[id] = null;
-    }
-  } else if (output.metadata[EXEC_MIME_TYPE]["server_id"] !== undefined) {
-    var bk_div = document.createElement("div");
-    bk_div.innerHTML = output.data[HTML_MIME_TYPE];
-    var script_attrs = bk_div.children[0].attributes;
-    for (var i = 0; i < script_attrs.length; i++) {
-      toinsert[toinsert.length - 1].childNodes[1].setAttribute(script_attrs[i].name, script_attrs[i].value);
-    }
-    // store reference to server id on output_area
-    output_area._bokeh_server_id = output.metadata[EXEC_MIME_TYPE]["server_id"];
-  }
-}
-
-/**
- * Handle when an output is cleared or removed
- */
-function handle_clear_output(event, handle) {
-  var id = handle.cell.output_area._hv_plot_id;
-  var server_id = handle.cell.output_area._bokeh_server_id;
-  if (((id === undefined) || !(id in PyViz.plot_index)) && (server_id !== undefined)) { return; }
-  var comm = window.PyViz.comm_manager.get_client_comm("hv-extension-comm", "hv-extension-comm", function () {});
-  if (server_id !== null) {
-    comm.send({event_type: 'server_delete', 'id': server_id});
-    return;
-  } else if (comm !== null) {
-    comm.send({event_type: 'delete', 'id': id});
-  }
-  delete PyViz.plot_index[id];
-  if ((window.Bokeh !== undefined) & (id in window.Bokeh.index)) {
-    var doc = window.Bokeh.index[id].model.document
-    doc.clear();
-    const i = window.Bokeh.documents.indexOf(doc);
-    if (i > -1) {
-      window.Bokeh.documents.splice(i, 1);
-    }
-  }
-}
-
-/**
- * Handle kernel restart event
- */
-function handle_kernel_cleanup(event, handle) {
-  delete PyViz.comms["hv-extension-comm"];
-  window.PyViz.plot_index = {}
-}
-
-/**
- * Handle update_display_data messages
- */
-function handle_update_output(event, handle) {
-  handle_clear_output(event, {cell: {output_area: handle.output_area}})
-  handle_add_output(event, handle)
-}
-
-function register_renderer(events, OutputArea) {
-  function append_mime(data, metadata, element) {
-    // create a DOM node to render to
-    var toinsert = this.create_output_subarea(
-    metadata,
-    CLASS_NAME,
-    EXEC_MIME_TYPE
-    );
-    this.keyboard_manager.register_events(toinsert);
-    // Render to node
-    var props = {data: data, metadata: metadata[EXEC_MIME_TYPE]};
-    render(props, toinsert[0]);
-    element.append(toinsert);
-    return toinsert
-  }
-
-  events.on('output_added.OutputArea', handle_add_output);
-  events.on('output_updated.OutputArea', handle_update_output);
-  events.on('clear_output.CodeCell', handle_clear_output);
-  events.on('delete.Cell', handle_clear_output);
-  events.on('kernel_ready.Kernel', handle_kernel_cleanup);
-
-  OutputArea.prototype.register_mime_type(EXEC_MIME_TYPE, append_mime, {
-    safe: true,
-    index: 0
-  });
-}
-
-if (window.Jupyter !== undefined) {
-  try {
-    var events = require('base/js/events');
-    var OutputArea = require('notebook/js/outputarea').OutputArea;
-    if (OutputArea.prototype.mime_types().indexOf(EXEC_MIME_TYPE) == -1) {
-      register_renderer(events, OutputArea);
-    }
-  } catch(err) {
-  }
-}
-
-</script>
-</div>
-<div class="cell-output cell-output-display">
-<style>*[data-root-id],
-*[data-root-id] > * {
-  box-sizing: border-box;
-  font-family: var(--jp-ui-font-family);
-  font-size: var(--jp-ui-font-size1);
-  color: var(--vscode-editor-foreground, var(--jp-ui-font-color1));
-}
-
-/* Override VSCode background color */
-.cell-output-ipywidget-background:has(
-    > .cell-output-ipywidget-background > .lm-Widget > *[data-root-id]
-  ),
-.cell-output-ipywidget-background:has(> .lm-Widget > *[data-root-id]) {
-  background-color: transparent !important;
-}
-</style>
+<p><img src="Estate_env_files/figure-html/cell-2-output-1.png" class="img-fluid"></p>
 </div>
 </div>
+<p>The sales prices in the High Line area and Battery Park area considered above the average sale prices across New York City, distinguishing them from other major parks.the High Line area experienced a surge in sale prices following the park’s opening in 2009. As it was mentioned before, the High Line is a elevated linear park built on a historic freight rail line. the plot indicates there is a positive economic impact on areas with urban parks compared to other areas.</p>
+</section>
+<section id="what-are-the-predominant-land-use-around-urban-parks-in-nyc" class="level1">
+<h1>What are the predominant land use around urban parks in NYC?</h1>
+<p>Understanding the types of buildings surrounding urban parks holds substantial importance for effective urban planning. For instance,Central Park , known as the top tourist attraction in NYC according to TripAdvisor. Recognizing the surrounding building landscape becomes pivotal as it transforms the park into a thriving hub, potentially elevating job opportunities and contributing to the city’s income. <br></p>
+<p>Moreover, examining types of the surrounding buildings is essential for understanding the cooling effects that parks can have on different building types. This knowledge not only aids in optimizing the urban environment but also plays a significant role in policymaking. It provides valuable insights for policy making that enhance the overall quality of life in neighborhoods which results in maximizing the well-being of residents</p>
 <div class="cell" data-execution_count="2">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Suppress all warnings</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>warnings.filterwarnings(<span class="st">'ignore'</span>)</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>pd.set_option(<span class="st">'mode.chained_assignment'</span>, <span class="va">None</span>)</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co">#ref https://www.nyc.gov/assets/finance/downloads/pdf/07pdf/glossary_rsf071607.pdf</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>sales <span class="op">=</span> pd.read_csv(<span class="st">"nyc-property-sales.csv"</span> )</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>sales.drop_duplicates(inplace<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>sales.dropna(inplace<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>sales[<span class="st">' ZIP CODE'</span>] <span class="op">=</span> pd.to_numeric(sales[<span class="st">' ZIP CODE'</span>], errors<span class="op">=</span><span class="st">'coerce'</span>)</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>sales <span class="op">=</span> sales.dropna(subset<span class="op">=</span>[<span class="st">' ZIP CODE'</span>])</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>sales[<span class="st">'SALE DATE'</span>] <span class="op">=</span> pd.to_datetime(sales[<span class="st">'SALE DATE'</span>])</span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>sales[<span class="st">'year'</span>] <span class="op">=</span> sales[<span class="st">'SALE DATE'</span>].dt.year</span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>sales.replace(<span class="st">' -  '</span>, <span class="dv">0</span>,  inplace<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>sales.replace(np.nan,<span class="dv">0</span>, inplace<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>sales[<span class="st">'SALE PRICE'</span>] <span class="op">=</span> sales[<span class="st">'SALE PRICE'</span>].astype(<span class="bu">float</span>)</span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>sales[<span class="st">'SALE_PRICE_M'</span>] <span class="op">=</span> sales[<span class="st">'SALE PRICE'</span>].astype(np.float64) <span class="op">/</span> <span class="dv">1000000</span></span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> calculate_mean_sales(df,zip_codes):</span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    df <span class="op">=</span> df[df[<span class="st">' ZIP CODE'</span>].isin(zip_codes)]</span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>    mean_sales_by_year <span class="op">=</span> df.groupby(<span class="st">'year'</span>)[<span class="st">'SALE_PRICE_M'</span>].mean().reset_index()</span>
-<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> mean_sales_by_year</span>
-<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>high_line <span class="op">=</span> [<span class="dv">10001</span>, <span class="dv">10011</span>, <span class="dv">10018</span>]</span>
-<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>hl <span class="op">=</span> calculate_mean_sales(sales,high_line)</span>
-<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>hl[<span class="st">'park'</span>] <span class="op">=</span> <span class="st">'High Line'</span></span>
-<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a><span class="co">#central sales </span></span>
-<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>Central <span class="op">=</span>  [<span class="dv">10019</span>, <span class="dv">10023</span>, <span class="dv">10024</span>, <span class="dv">10025</span>]</span>
-<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>cn <span class="op">=</span> calculate_mean_sales(sales,Central)</span>
-<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>cn[<span class="st">'park'</span>] <span class="op">=</span> <span class="st">'Central Park'</span></span>
-<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a><span class="co">#Prospect sales </span></span>
-<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>Prospect <span class="op">=</span> [<span class="dv">11215</span>, <span class="dv">11217</span>, <span class="dv">11218</span>]</span>
-<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>pr <span class="op">=</span> calculate_mean_sales(sales,Prospect)</span>
-<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>pr[<span class="st">'park'</span>] <span class="op">=</span> <span class="st">'Prospect Park'</span></span>
-<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a><span class="co">#Brooklyn Bridge sales </span></span>
-<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>BrooklynBridge <span class="op">=</span>  [<span class="dv">11201</span>, <span class="dv">11205</span>, <span class="dv">11217</span>]</span>
-<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>Brooklyn <span class="op">=</span> calculate_mean_sales(sales,BrooklynBridge)</span>
-<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>Brooklyn[<span class="st">'park'</span>] <span class="op">=</span> <span class="st">'Brooklyn Park'</span></span>
-<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a><span class="co">#Flushing sales </span></span>
-<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>Flushing_Park <span class="op">=</span>[<span class="dv">11368</span>, <span class="dv">11369</span>, <span class="dv">11373</span>]</span>
-<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>fp <span class="op">=</span> calculate_mean_sales(sales,Flushing_Park)</span>
-<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>fp[<span class="st">'park'</span>] <span class="op">=</span> <span class="st">'Flushing Park'</span></span>
-<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a><span class="co">#Battery sales </span></span>
-<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>Battery<span class="op">=</span> [<span class="dv">10004</span>, <span class="dv">10005</span>, <span class="dv">10006</span>]</span>
-<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>bt <span class="op">=</span> calculate_mean_sales(sales,Battery)</span>
-<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>bt[<span class="st">'park'</span>] <span class="op">=</span> <span class="st">'Battery Park'</span></span>
-<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>bt <span class="op">=</span> calculate_mean_sales(sales,Battery)</span>
-<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>bt[<span class="st">'park'</span>] <span class="op">=</span> <span class="st">'Battery Park'</span></span>
-<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a>overall <span class="op">=</span> sales.groupby(<span class="st">'year'</span>)[<span class="st">'SALE_PRICE_M'</span>].mean().reset_index()</span>
-<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a>overall[<span class="st">'park'</span>] <span class="op">=</span> <span class="st">'NYC'</span></span>
-<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a>mean_sales <span class="op">=</span> pd.concat([hl, cn, pr ,Brooklyn , fp , bt , overall], ignore_index<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">6</span>))</span>
-<span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a>sns.lineplot(x<span class="op">=</span><span class="st">'year'</span>, y<span class="op">=</span><span class="st">'SALE_PRICE_M'</span>, hue<span class="op">=</span><span class="st">'park'</span>, data<span class="op">=</span>mean_sales, marker<span class="op">=</span><span class="st">'o'</span> ,palette<span class="op">=</span><span class="st">'deep'</span> )</span>
-<span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'Date'</span>)</span>
-<span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'Sales ( Millions $)'</span>)</span>
-<span id="cb2-60"><a href="#cb2-60" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Mean Prices for Property Sales in Areas Around Parks'</span>)</span>
-<span id="cb2-61"><a href="#cb2-61" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>sales[<span class="st">'Class'</span>] <span class="op">=</span> np.where(sales[<span class="st">'BUILDING CLASS AT PRESENT'</span>].<span class="bu">str</span>.contains(<span class="st">'^[ABCDSL]|^R[1-4]'</span>, case<span class="op">=</span><span class="va">False</span> ,regex<span class="op">=</span><span class="va">True</span>) , <span class="st">'Residential'</span> , <span class="st">'Else'</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>sales[<span class="st">'Class'</span>] <span class="op">=</span> np.where(sales[<span class="st">'BUILDING CLASS AT PRESENT'</span>].<span class="bu">str</span>.contains(<span class="st">'^V'</span>, case<span class="op">=</span><span class="va">False</span> ,regex<span class="op">=</span><span class="va">True</span>) , <span class="st">'Vacant'</span> , sales[<span class="st">'Class'</span>])</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>sales[<span class="st">'Class'</span>] <span class="op">=</span> np.where(sales[<span class="st">'BUILDING CLASS AT PRESENT'</span>].<span class="bu">str</span>.contains(<span class="st">'^[KORB]'</span>, case<span class="op">=</span><span class="va">False</span> ,regex<span class="op">=</span><span class="va">True</span>) , <span class="st">'Commercial'</span> , sales[<span class="st">'Class'</span>])</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>sales[<span class="st">'Class'</span>] <span class="op">=</span> np.where(sales[<span class="st">'BUILDING CLASS AT PRESENT'</span>].<span class="bu">str</span>.contains(<span class="st">'^[H]'</span>, case<span class="op">=</span><span class="va">False</span> ,regex<span class="op">=</span><span class="va">True</span>) , <span class="st">'Hotel'</span> , sales[<span class="st">'Class'</span>])</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>parks_codes <span class="op">=</span> [<span class="dv">10001</span>, <span class="dv">10011</span>, <span class="dv">10018</span>, <span class="dv">10019</span>, <span class="dv">10023</span>, <span class="dv">10024</span>, <span class="dv">10025</span> , <span class="dv">11215</span>, <span class="dv">11217</span>, <span class="dv">11218</span> , <span class="dv">11201</span>, <span class="dv">11205</span>, <span class="dv">11217</span>,</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>              <span class="dv">11201</span>, <span class="dv">11205</span>, <span class="dv">11217</span>, <span class="dv">11368</span>, <span class="dv">11369</span>, <span class="dv">11373</span> , <span class="dv">10004</span>, <span class="dv">10005</span>, <span class="dv">10006</span> ]</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>nyc_use <span class="op">=</span> sales[<span class="st">'Class'</span>].value_counts().reset_index()</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>high_line <span class="op">=</span> [<span class="dv">10001</span>, <span class="dv">10011</span>, <span class="dv">10018</span>]</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>hl_sales <span class="op">=</span>  sales[sales[<span class="st">' ZIP CODE'</span>].isin(high_line)]</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>hl_class <span class="op">=</span> hl_sales[<span class="st">'Class'</span>].value_counts().reset_index()</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="co">#central sales </span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>Central <span class="op">=</span>  [<span class="dv">10019</span>, <span class="dv">10023</span>, <span class="dv">10024</span>, <span class="dv">10025</span>]</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>Central_sales <span class="op">=</span>  sales[sales[<span class="st">' ZIP CODE'</span>].isin(Central)]</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>Central_class <span class="op">=</span> Central_sales[<span class="st">'Class'</span>].value_counts().reset_index()</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="co">#Prospect sales </span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>Prospect <span class="op">=</span> [<span class="dv">11215</span>, <span class="dv">11217</span>, <span class="dv">11218</span>]</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>Prospect_sales <span class="op">=</span>  sales[sales[<span class="st">' ZIP CODE'</span>].isin(Prospect)]</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>Prospect_class <span class="op">=</span> Prospect_sales[<span class="st">'Class'</span>].value_counts().reset_index()</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="co">#Brooklyn Bridge sales </span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>BrooklynBridge <span class="op">=</span>  [<span class="dv">11201</span>, <span class="dv">11205</span>, <span class="dv">11217</span>]</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>Brooklyn_sales <span class="op">=</span>  sales[sales[<span class="st">' ZIP CODE'</span>].isin(BrooklynBridge)]</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>Brooklyn_class <span class="op">=</span> Brooklyn_sales[<span class="st">'Class'</span>].value_counts().reset_index()</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="co">#Flushing sales </span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>Flushing_Park <span class="op">=</span>[<span class="dv">11368</span>, <span class="dv">11369</span>, <span class="dv">11373</span>]</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>Flushing_sales <span class="op">=</span>  sales[sales[<span class="st">' ZIP CODE'</span>].isin(Flushing_Park)]</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>Flushing_class <span class="op">=</span> Flushing_sales[<span class="st">'Class'</span>].value_counts().reset_index()</span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a><span class="co">#Battery sales </span></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>Battery<span class="op">=</span> [<span class="dv">10004</span>, <span class="dv">10005</span>, <span class="dv">10006</span>]</span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>Battery_sales <span class="op">=</span>  sales[sales[<span class="st">' ZIP CODE'</span>].isin(Battery)]</span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>Battery_class <span class="op">=</span> Battery_sales[<span class="st">'Class'</span>].value_counts().reset_index()</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>park_dfs <span class="op">=</span> [hl_class, Central_class , Prospect_class , Brooklyn_class , Flushing_class , Battery_class , nyc_use]  <span class="co"># Add all park DataFrames to this list</span></span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>parks_names <span class="op">=</span> [<span class="st">'High line'</span>, <span class="st">'Central park'</span> ,<span class="st">'Prospect park'</span> , <span class="st">'Brooklyn park'</span>, <span class="st">'Flushing park'</span>,  <span class="st">'Battery_park'</span> , <span class="st">'NYC'</span>]</span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(nrows<span class="op">=</span><span class="dv">2</span>, ncols<span class="op">=</span><span class="dv">4</span>, figsize<span class="op">=</span>(<span class="dv">16</span>, <span class="dv">8</span>))</span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>fig.suptitle(<span class="st">'Building Types Counts in Each Park'</span>, y<span class="op">=</span><span class="fl">1.02</span> ,fontsize<span class="op">=</span><span class="dv">16</span>)</span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>order <span class="op">=</span> [<span class="st">'Residential'</span>, <span class="st">'Commercial'</span>, <span class="st">'Else'</span>, <span class="st">'Vacant'</span>, <span class="st">'Hotel'</span>]</span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>axes <span class="op">=</span> axes.flatten()</span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, (park_name, park_df) <span class="kw">in</span> <span class="bu">enumerate</span>(<span class="bu">zip</span>(parks_names, park_dfs)):</span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>    sns.barplot(x<span class="op">=</span><span class="st">'Class'</span>, y<span class="op">=</span><span class="st">'count'</span>, data<span class="op">=</span>park_df, ax<span class="op">=</span>axes[i] , palette<span class="op">=</span><span class="st">'Greens_r'</span> , order<span class="op">=</span>order)</span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>    axes[i].set_title(park_name, fontsize<span class="op">=</span><span class="dv">16</span>)</span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>    axes[i].set_xticklabels(axes[i].get_xticklabels(), rotation<span class="op">=</span><span class="dv">45</span>)</span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a>plt.xticks(rotation<span class="op">=</span><span class="dv">45</span>)</span>
+<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-display">
 <p><img src="Estate_env_files/figure-html/cell-3-output-1.png" class="img-fluid"></p>
 </div>
 </div>
+<p>The plots show a clear pattern in building types within downtown Manhattan, particularly in proximity to the High Line and Central Park. The predominant land use in these areas is commercial since these areas are considered prime locations for economic activities .Moreover, Around Central Park, there is a significant presence of hotels, aligning with the park’s status as a major destination for tourists. The presence of hotels proves Central Park’s desirability, as having a room with a view of the park commands higher costs compared to rooms with alternative views. This aligns with the understanding that Central Park serves as an ideal location for hotels. Such pattern support that urban parks, like Central Park, have the potential to attract substantial tourism revenue<br></p>
+<p>Located in the heart of the financial district, Battery Park is a major location facing New York Harbor.It can be seen that the majority of the buildings surrounding it are for commercial use. This aligns logically with the financial district’s status as a global commercial and financial hub. The presence of the park not only enhances the aesthetics of the area but also contributes to a more pleasant overall atmosphere.</p>
+<p>It can be seen from the plots that both Flushing Meadows Corona Park and Prospect Park areas are predominantly surrounded by residential buildings rather than commercial ones. This could indicate a higher concentration of residential zones in these areas compared to commercial zones. This pattern may prove that these areas are designed to be family-friendly, offering a quieter and less noisy environment than commercial districts, such as the financial district. Additionally, the parks’ locations in suburban settings align with the emphasis on residential development.</p>
 </section>
-<section id="what-are-the-predominant-land-use-around-urban-parks-in-nyc" class="level1">
-<h1>What are the predominant land use around urban parks in NYC?</h1>
-<div class="cell" data-execution_count="3">
+<section id="how-does-the-land-use-of-an-area-residential-commercial-affect-the-temperature-reduction-impact-of-nearby-parks" class="level1">
+<h1>How does the land use of an area (residential, commercial) affect the temperature reduction impact of nearby parks?</h1>
+<div class="cell" data-scrolled="true" data-execution_count="3">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>sales[<span class="st">'Class'</span>] <span class="op">=</span> np.where(sales[<span class="st">'BUILDING CLASS AT PRESENT'</span>].<span class="bu">str</span>.contains(<span class="st">'^[ABCDSL]|^R[1-4]'</span>, case<span class="op">=</span><span class="va">False</span> ,regex<span class="op">=</span><span class="va">True</span>) , <span class="st">'Residential'</span> , <span class="st">'Else'</span>)</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>sales[<span class="st">'Class'</span>] <span class="op">=</span> np.where(sales[<span class="st">'BUILDING CLASS AT PRESENT'</span>].<span class="bu">str</span>.contains(<span class="st">'^V'</span>, case<span class="op">=</span><span class="va">False</span> ,regex<span class="op">=</span><span class="va">True</span>) , <span class="st">'Vacant'</span> , sales[<span class="st">'Class'</span>])</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>sales[<span class="st">'Class'</span>] <span class="op">=</span> np.where(sales[<span class="st">'BUILDING CLASS AT PRESENT'</span>].<span class="bu">str</span>.contains(<span class="st">'^[KORB]'</span>, case<span class="op">=</span><span class="va">False</span> ,regex<span class="op">=</span><span class="va">True</span>) , <span class="st">'Commercial'</span> , sales[<span class="st">'Class'</span>])</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>sales[<span class="st">'Class'</span>] <span class="op">=</span> np.where(sales[<span class="st">'BUILDING CLASS AT PRESENT'</span>].<span class="bu">str</span>.contains(<span class="st">'^[H]'</span>, case<span class="op">=</span><span class="va">False</span> ,regex<span class="op">=</span><span class="va">True</span>) , <span class="st">'Hotel'</span> , sales[<span class="st">'Class'</span>])</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>parks_codes <span class="op">=</span> [<span class="dv">10001</span>, <span class="dv">10011</span>, <span class="dv">10018</span>, <span class="dv">10019</span>, <span class="dv">10023</span>, <span class="dv">10024</span>, <span class="dv">10025</span> , <span class="dv">11215</span>, <span class="dv">11217</span>, <span class="dv">11218</span> , <span class="dv">11201</span>, <span class="dv">11205</span>, <span class="dv">11217</span>,</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>              <span class="dv">11201</span>, <span class="dv">11205</span>, <span class="dv">11217</span>, <span class="dv">11368</span>, <span class="dv">11369</span>, <span class="dv">11373</span> , <span class="dv">10004</span>, <span class="dv">10005</span>, <span class="dv">10006</span> ]</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>nyc_use <span class="op">=</span> sales[<span class="st">'Class'</span>].value_counts().reset_index()</span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>high_line <span class="op">=</span> [<span class="dv">10001</span>, <span class="dv">10011</span>, <span class="dv">10018</span>]</span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>hl_sales <span class="op">=</span>  sales[sales[<span class="st">' ZIP CODE'</span>].isin(high_line)]</span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>hl_class <span class="op">=</span> hl_sales[<span class="st">'Class'</span>].value_counts().reset_index()</span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="co">#central sales </span></span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>Central <span class="op">=</span>  [<span class="dv">10019</span>, <span class="dv">10023</span>, <span class="dv">10024</span>, <span class="dv">10025</span>]</span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>Central_sales <span class="op">=</span>  sales[sales[<span class="st">' ZIP CODE'</span>].isin(Central)]</span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>Central_class <span class="op">=</span> Central_sales[<span class="st">'Class'</span>].value_counts().reset_index()</span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="co">#Prospect sales </span></span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>Prospect <span class="op">=</span> [<span class="dv">11215</span>, <span class="dv">11217</span>, <span class="dv">11218</span>]</span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>Prospect_sales <span class="op">=</span>  sales[sales[<span class="st">' ZIP CODE'</span>].isin(Prospect)]</span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>Prospect_class <span class="op">=</span> Prospect_sales[<span class="st">'Class'</span>].value_counts().reset_index()</span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a><span class="co">#Brooklyn Bridge sales </span></span>
-<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>BrooklynBridge <span class="op">=</span>  [<span class="dv">11201</span>, <span class="dv">11205</span>, <span class="dv">11217</span>]</span>
-<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>Brooklyn_sales <span class="op">=</span>  sales[sales[<span class="st">' ZIP CODE'</span>].isin(BrooklynBridge)]</span>
-<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>Brooklyn_class <span class="op">=</span> Brooklyn_sales[<span class="st">'Class'</span>].value_counts().reset_index()</span>
-<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a><span class="co">#Flushing sales </span></span>
-<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>Flushing_Park <span class="op">=</span>[<span class="dv">11368</span>, <span class="dv">11369</span>, <span class="dv">11373</span>]</span>
-<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>Flushing_sales <span class="op">=</span>  sales[sales[<span class="st">' ZIP CODE'</span>].isin(Flushing_Park)]</span>
-<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>Flushing_class <span class="op">=</span> Flushing_sales[<span class="st">'Class'</span>].value_counts().reset_index()</span>
-<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a><span class="co">#Battery sales </span></span>
-<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>Battery<span class="op">=</span> [<span class="dv">10004</span>, <span class="dv">10005</span>, <span class="dv">10006</span>]</span>
-<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>Battery_sales <span class="op">=</span>  sales[sales[<span class="st">' ZIP CODE'</span>].isin(Battery)]</span>
-<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>Battery_class <span class="op">=</span> Battery_sales[<span class="st">'Class'</span>].value_counts().reset_index()</span>
-<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a></span>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> geopandas <span class="im">as</span> gpd</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Specify the path to your GeoJSON file</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>geojson_file_path <span class="op">=</span> <span class="st">'https://services5.arcgis.com/GfwWNkhOj9bNBqoJ/arcgis/rest/services/NYC_Neighborhood_Tabulation_Areas_2010/FeatureServer/0/query?where=1=1&amp;outFields=*&amp;outSR=4326&amp;f=pgeojson'</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Read the GeoJSON file</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>gdf <span class="op">=</span> gpd.read_file(geojson_file_path)</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> <span class="bu">open</span>(<span class="st">'indicators_data/2141.json'</span>, <span class="st">'r'</span>) <span class="im">as</span> <span class="bu">file</span>:</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    temp_data <span class="op">=</span> json.load(<span class="bu">file</span>)</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>temp_data <span class="op">=</span> pd.DataFrame(temp_data)</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="co">#read shape file for UHF 42</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>shape_file_loc <span class="op">=</span> <span class="st">'UHF 42/UHF_42_DOHMH.shp'</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="co">#convert it into geopanda dataframe </span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_gpd_df(use_shape_file<span class="op">=</span><span class="va">True</span>):</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> use_shape_file:</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>        gdf <span class="op">=</span> gpd.read_file(shape_file_loc)</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> gdf</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>uhf_gpd <span class="op">=</span>  get_gpd_df()</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>uhf_gpd.to_crs(epsg <span class="op">=</span> <span class="st">"4326"</span>, inplace <span class="op">=</span> <span class="va">True</span>)</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>temp_data <span class="op">=</span> temp_data[temp_data.GeoType<span class="op">==</span><span class="st">"UHF42"</span>]</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>temp_data.GeoID <span class="op">=</span> temp_data.GeoID.astype(<span class="bu">float</span>)</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>merged_ny_temp_data <span class="op">=</span> uhf_gpd.merge(</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>    temp_data,</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>    left_on<span class="op">=</span>[<span class="st">"UHF"</span>],</span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>    right_on<span class="op">=</span>[<span class="st">"GeoID"</span>])</span>
 <span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>park_dfs <span class="op">=</span> [hl_class, Central_class , Prospect_class , Brooklyn_class , Flushing_class , Battery_class , nyc_use]  <span class="co"># Add all park DataFrames to this list</span></span>
-<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>parks_names <span class="op">=</span> [<span class="st">'High line'</span>, <span class="st">'Central park'</span> ,<span class="st">'Prospect park'</span> , <span class="st">'Brooklyn park'</span>, <span class="st">'Flushing park'</span>,  <span class="st">'Battery_park'</span> , <span class="st">'NYC'</span>]</span>
-<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(nrows<span class="op">=</span><span class="dv">2</span>, ncols<span class="op">=</span><span class="dv">4</span>, figsize<span class="op">=</span>(<span class="dv">16</span>, <span class="dv">8</span>))</span>
-<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>fig.suptitle(<span class="st">'Building Types Counts in Each Park'</span>, y<span class="op">=</span><span class="fl">1.02</span> ,fontsize<span class="op">=</span><span class="dv">16</span>)</span>
-<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>order <span class="op">=</span> [<span class="st">'Residential'</span>, <span class="st">'Commercial'</span>, <span class="st">'Else'</span>, <span class="st">'Vacant'</span>, <span class="st">'Hotel'</span>]</span>
-<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>axes <span class="op">=</span> axes.flatten()</span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>shape_file_loc <span class="op">=</span>  <span class="st">'parks_map/geo_export_46a7de00-0067-42f5-a6bc-bec64e5a0f0b.shp'</span></span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a><span class="co">#convert it into geopanda dataframe </span></span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_gpd_df(use_shape_file<span class="op">=</span><span class="va">True</span>):</span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> use_shape_file:</span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>        gdf <span class="op">=</span> gpd.read_file(shape_file_loc)</span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> gdf</span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>parks_gpd <span class="op">=</span>  get_gpd_df()</span>
 <span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, (park_name, park_df) <span class="kw">in</span> <span class="bu">enumerate</span>(<span class="bu">zip</span>(parks_names, park_dfs)):</span>
-<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a>    sns.barplot(x<span class="op">=</span><span class="st">'Class'</span>, y<span class="op">=</span><span class="st">'count'</span>, data<span class="op">=</span>park_df, ax<span class="op">=</span>axes[i] , palette<span class="op">=</span><span class="st">'Greens_r'</span> , order<span class="op">=</span>order)</span>
-<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>    axes[i].set_title(park_name, fontsize<span class="op">=</span><span class="dv">16</span>)</span>
-<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a>    axes[i].set_xticklabels(axes[i].get_xticklabels(), rotation<span class="op">=</span><span class="dv">45</span>)</span>
-<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
-<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a>plt.xticks(rotation<span class="op">=</span><span class="dv">45</span>)</span>
-<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> style(feature):</span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {</span>
+<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a>        <span class="st">'fillColor'</span>: <span class="st">'green'</span>,  </span>
+<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>        <span class="st">'color'</span>: <span class="st">'black'</span>,      </span>
+<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a>        <span class="st">'weight'</span>: <span class="dv">2</span>,          </span>
+<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a>        <span class="st">'fillOpacity'</span>: <span class="fl">0.6</span>    </span>
+<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> mapping(df,col, parks_gpd<span class="op">=</span>parks_gpd):</span>
+<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a>    m <span class="op">=</span> df.explore(column<span class="op">=</span>col,cmap <span class="op">=</span> <span class="st">'Reds'</span>, </span>
+<span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a>                                tiles<span class="op">=</span><span class="st">"CartoDB positron"</span>, zoom_start<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a>    folium.Marker(location<span class="op">=</span>[<span class="fl">40.747993</span>, <span class="op">-</span><span class="fl">74.004890</span>], popup<span class="op">=</span><span class="st">"The High Line"</span> , icon<span class="op">=</span>folium.Icon(icon<span class="op">=</span><span class="st">'tree'</span> ,color<span class="op">=</span><span class="st">'green'</span>)).add_to(m)</span>
+<span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a>    folium.Marker(location<span class="op">=</span>[<span class="fl">40.785091</span>, <span class="op">-</span><span class="fl">73.968285</span>], popup<span class="op">=</span><span class="st">"Central Park"</span> , icon<span class="op">=</span>folium.Icon(icon<span class="op">=</span><span class="st">'tree'</span> ,color<span class="op">=</span><span class="st">'green'</span>)).add_to(m)</span>
+<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a>    folium.Marker(location<span class="op">=</span>[<span class="fl">40.665535</span>, <span class="op">-</span><span class="fl">73.969749</span>], popup<span class="op">=</span><span class="st">"Prospect Park"</span> , icon<span class="op">=</span>folium.Icon(icon<span class="op">=</span><span class="st">'tree'</span> ,color<span class="op">=</span><span class="st">'green'</span>)).add_to(m)</span>
+<span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a>    folium.Marker(location<span class="op">=</span>[<span class="fl">40.699215</span>, <span class="op">-</span><span class="fl">73.999039</span>], popup<span class="op">=</span><span class="st">"Brooklyn Bridge Park"</span> , icon<span class="op">=</span>folium.Icon(icon<span class="op">=</span><span class="st">'tree'</span> ,color<span class="op">=</span><span class="st">'green'</span>)).add_to(m)</span>
+<span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a>    folium.Marker(location<span class="op">=</span>[<span class="fl">40.739716</span>, <span class="op">-</span><span class="fl">73.840782</span>], popup<span class="op">=</span><span class="st">"Flushing Meadows Corona Park"</span> , icon<span class="op">=</span>folium.Icon(icon<span class="op">=</span><span class="st">'tree'</span> ,color<span class="op">=</span><span class="st">'green'</span>)).add_to(m)</span>
+<span id="cb3-59"><a href="#cb3-59" aria-hidden="true" tabindex="-1"></a>    folium.Marker(location<span class="op">=</span>[<span class="fl">40.703564</span>, <span class="op">-</span><span class="fl">74.016678</span>], popup<span class="op">=</span><span class="st">"Battery Park"</span> , icon<span class="op">=</span>folium.Icon(icon<span class="op">=</span><span class="st">'tree'</span> ,color<span class="op">=</span><span class="st">'green'</span>)).add_to(m)</span>
+<span id="cb3-60"><a href="#cb3-60" aria-hidden="true" tabindex="-1"></a>    folium.GeoJson(</span>
+<span id="cb3-61"><a href="#cb3-61" aria-hidden="true" tabindex="-1"></a>    parks_gpd,</span>
+<span id="cb3-62"><a href="#cb3-62" aria-hidden="true" tabindex="-1"></a>    name<span class="op">=</span><span class="st">'geojson_layer'</span>,</span>
+<span id="cb3-63"><a href="#cb3-63" aria-hidden="true" tabindex="-1"></a>    style_function<span class="op">=</span>style</span>
+<span id="cb3-64"><a href="#cb3-64" aria-hidden="true" tabindex="-1"></a>    ).add_to(m)</span>
+<span id="cb3-65"><a href="#cb3-65" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> m </span>
+<span id="cb3-66"><a href="#cb3-66" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-67"><a href="#cb3-67" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> mapping(merged_ny_temp_data,<span class="st">"Value"</span>)</span>
+<span id="cb3-68"><a href="#cb3-68" aria-hidden="true" tabindex="-1"></a><span class="co"># Save the map as HTML</span></span>
+<span id="cb3-69"><a href="#cb3-69" aria-hidden="true" tabindex="-1"></a>html_path <span class="op">=</span> <span class="st">"map6.html"</span></span>
+<span id="cb3-70"><a href="#cb3-70" aria-hidden="true" tabindex="-1"></a>m.save(html_path)</span>
+<span id="cb3-71"><a href="#cb3-71" aria-hidden="true" tabindex="-1"></a><span class="co"># Display the HTML file as an iframe</span></span>
+<span id="cb3-72"><a href="#cb3-72" aria-hidden="true" tabindex="-1"></a>IFrame(html_path, width<span class="op">=</span><span class="dv">600</span>, height<span class="op">=</span><span class="dv">600</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-display">
-<p><img src="Estate_env_files/figure-html/cell-4-output-1.png" class="img-fluid"></p>
-</div>
-</div>
-</section>
-<section id="how-does-the-land-use-composition-of-an-area-residential-commercial-industrial-affect-the-temperature-reduction-impact-of-nearby-parks" class="level1">
-<h1>How does the land use composition of an area (residential, commercial, industrial) affect the temperature reduction impact of nearby parks?</h1>
-</section>
-<section id="do-the-presence-of-parks-affect-the-surface-temperature" class="level1">
-<h1>&amp; Do the presence of parks affect the surface temperature?</h1>
-<div class="cell" data-scrolled="true" data-execution_count="4">
-<details>
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> geopandas <span class="im">as</span> gpd</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Specify the path to your GeoJSON file</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>geojson_file_path <span class="op">=</span> <span class="st">'https://services5.arcgis.com/GfwWNkhOj9bNBqoJ/arcgis/rest/services/NYC_Neighborhood_Tabulation_Areas_2010/FeatureServer/0/query?where=1=1&amp;outFields=*&amp;outSR=4326&amp;f=pgeojson'</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Read the GeoJSON file</span></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>gdf <span class="op">=</span> gpd.read_file(geojson_file_path)</span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> <span class="bu">open</span>(<span class="st">'indicators_data/2141.json'</span>, <span class="st">'r'</span>) <span class="im">as</span> <span class="bu">file</span>:</span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    temp_data <span class="op">=</span> json.load(<span class="bu">file</span>)</span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>temp_data <span class="op">=</span> pd.DataFrame(temp_data)</span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="co">#read shape file for UHF 42</span></span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>shape_file_loc <span class="op">=</span> <span class="st">'UHF 42/UHF_42_DOHMH.shp'</span></span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="co">#convert it into geopanda dataframe </span></span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_gpd_df(use_shape_file<span class="op">=</span><span class="va">True</span>):</span>
-<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> use_shape_file:</span>
-<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>        gdf <span class="op">=</span> gpd.read_file(shape_file_loc)</span>
-<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> gdf</span>
-<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>uhf_gpd <span class="op">=</span>  get_gpd_df()</span>
-<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>uhf_gpd.to_crs(epsg <span class="op">=</span> <span class="st">"4326"</span>, inplace <span class="op">=</span> <span class="va">True</span>)</span>
-<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>temp_data <span class="op">=</span> temp_data[temp_data.GeoType<span class="op">==</span><span class="st">"UHF42"</span>]</span>
-<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>temp_data.GeoID <span class="op">=</span> temp_data.GeoID.astype(<span class="bu">float</span>)</span>
-<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>merged_ny_temp_data <span class="op">=</span> uhf_gpd.merge(</span>
-<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>    temp_data,</span>
-<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>    left_on<span class="op">=</span>[<span class="st">"UHF"</span>],</span>
-<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>    right_on<span class="op">=</span>[<span class="st">"GeoID"</span>])</span>
-<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>shape_file_loc <span class="op">=</span>  <span class="st">'parks_map/geo_export_46a7de00-0067-42f5-a6bc-bec64e5a0f0b.shp'</span></span>
-<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a><span class="co">#convert it into geopanda dataframe </span></span>
-<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_gpd_df(use_shape_file<span class="op">=</span><span class="va">True</span>):</span>
-<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> use_shape_file:</span>
-<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>        gdf <span class="op">=</span> gpd.read_file(shape_file_loc)</span>
-<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> gdf</span>
-<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>parks_gpd <span class="op">=</span>  get_gpd_df()</span>
-<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> style(feature):</span>
-<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {</span>
-<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a>        <span class="st">'fillColor'</span>: <span class="st">'green'</span>,  </span>
-<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>        <span class="st">'color'</span>: <span class="st">'black'</span>,      </span>
-<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a>        <span class="st">'weight'</span>: <span class="dv">2</span>,          </span>
-<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a>        <span class="st">'fillOpacity'</span>: <span class="fl">0.6</span>    </span>
-<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> mapping(df,col, parks_gpd<span class="op">=</span>parks_gpd):</span>
-<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-52"><a href="#cb4-52" aria-hidden="true" tabindex="-1"></a>    m <span class="op">=</span> df.explore(column<span class="op">=</span>col,cmap <span class="op">=</span> <span class="st">'Blues'</span>, </span>
-<span id="cb4-53"><a href="#cb4-53" aria-hidden="true" tabindex="-1"></a>                                tiles<span class="op">=</span><span class="st">"CartoDB positron"</span>, zoom_start<span class="op">=</span><span class="dv">11</span>)</span>
-<span id="cb4-54"><a href="#cb4-54" aria-hidden="true" tabindex="-1"></a>    folium.Marker(location<span class="op">=</span>[<span class="fl">40.747993</span>, <span class="op">-</span><span class="fl">74.004890</span>], popup<span class="op">=</span><span class="st">"The High Line"</span> , icon<span class="op">=</span>folium.Icon(icon<span class="op">=</span><span class="st">'tree'</span> ,color<span class="op">=</span><span class="st">'red'</span>)).add_to(m)</span>
-<span id="cb4-55"><a href="#cb4-55" aria-hidden="true" tabindex="-1"></a>    folium.Marker(location<span class="op">=</span>[<span class="fl">40.785091</span>, <span class="op">-</span><span class="fl">73.968285</span>], popup<span class="op">=</span><span class="st">"Central Park"</span> , icon<span class="op">=</span>folium.Icon(icon<span class="op">=</span><span class="st">'tree'</span> ,color<span class="op">=</span><span class="st">'red'</span>)).add_to(m)</span>
-<span id="cb4-56"><a href="#cb4-56" aria-hidden="true" tabindex="-1"></a>    folium.Marker(location<span class="op">=</span>[<span class="fl">40.665535</span>, <span class="op">-</span><span class="fl">73.969749</span>], popup<span class="op">=</span><span class="st">"Prospect Park"</span> , icon<span class="op">=</span>folium.Icon(icon<span class="op">=</span><span class="st">'tree'</span> ,color<span class="op">=</span><span class="st">'red'</span>)).add_to(m)</span>
-<span id="cb4-57"><a href="#cb4-57" aria-hidden="true" tabindex="-1"></a>    folium.Marker(location<span class="op">=</span>[<span class="fl">40.699215</span>, <span class="op">-</span><span class="fl">73.999039</span>], popup<span class="op">=</span><span class="st">"Brooklyn Bridge Park"</span> , icon<span class="op">=</span>folium.Icon(icon<span class="op">=</span><span class="st">'tree'</span> ,color<span class="op">=</span><span class="st">'red'</span>)).add_to(m)</span>
-<span id="cb4-58"><a href="#cb4-58" aria-hidden="true" tabindex="-1"></a>    folium.Marker(location<span class="op">=</span>[<span class="fl">40.739716</span>, <span class="op">-</span><span class="fl">73.840782</span>], popup<span class="op">=</span><span class="st">"Flushing Meadows Corona Park"</span> , icon<span class="op">=</span>folium.Icon(icon<span class="op">=</span><span class="st">'tree'</span> ,color<span class="op">=</span><span class="st">'red'</span>)).add_to(m)</span>
-<span id="cb4-59"><a href="#cb4-59" aria-hidden="true" tabindex="-1"></a>    folium.Marker(location<span class="op">=</span>[<span class="fl">40.703564</span>, <span class="op">-</span><span class="fl">74.016678</span>], popup<span class="op">=</span><span class="st">"Battery Park"</span> , icon<span class="op">=</span>folium.Icon(icon<span class="op">=</span><span class="st">'tree'</span> ,color<span class="op">=</span><span class="st">'red'</span>)).add_to(m)</span>
-<span id="cb4-60"><a href="#cb4-60" aria-hidden="true" tabindex="-1"></a>    folium.GeoJson(</span>
-<span id="cb4-61"><a href="#cb4-61" aria-hidden="true" tabindex="-1"></a>    parks_gpd,</span>
-<span id="cb4-62"><a href="#cb4-62" aria-hidden="true" tabindex="-1"></a>    name<span class="op">=</span><span class="st">'geojson_layer'</span>,</span>
-<span id="cb4-63"><a href="#cb4-63" aria-hidden="true" tabindex="-1"></a>    style_function<span class="op">=</span>style</span>
-<span id="cb4-64"><a href="#cb4-64" aria-hidden="true" tabindex="-1"></a>    ).add_to(m)</span>
-<span id="cb4-65"><a href="#cb4-65" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> m </span>
-<span id="cb4-66"><a href="#cb4-66" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-67"><a href="#cb4-67" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-68"><a href="#cb4-68" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-69"><a href="#cb4-69" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> mapping(merged_ny_temp_data,<span class="st">"Value"</span>)</span>
-<span id="cb4-70"><a href="#cb4-70" aria-hidden="true" tabindex="-1"></a><span class="co"># Save the map as HTML</span></span>
-<span id="cb4-71"><a href="#cb4-71" aria-hidden="true" tabindex="-1"></a>html_path <span class="op">=</span> <span class="st">"map1.html"</span></span>
-<span id="cb4-72"><a href="#cb4-72" aria-hidden="true" tabindex="-1"></a>m.save(html_path)</span>
-<span id="cb4-73"><a href="#cb4-73" aria-hidden="true" tabindex="-1"></a><span class="co"># Display the HTML file as an iframe</span></span>
-<span id="cb4-74"><a href="#cb4-74" aria-hidden="true" tabindex="-1"></a>IFrame(html_path, width<span class="op">=</span><span class="dv">800</span>, height<span class="op">=</span><span class="dv">600</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output cell-output-display" data-execution_count="4">
+<div class="cell-output cell-output-display" data-execution_count="3">
 
-        <iframe width="800" height="600" src="map1.html" frameborder="0" allowfullscreen=""></iframe>
+        <iframe width="600" height="600" src="map6.html" frameborder="0" allowfullscreen=""></iframe>
         
 </div>
 </div>
+<p><img src="https://landezine.com/wp-content/uploads/2017/04/06-Credit-Battery-Conservancy.jpg" alt="fd" width="500" height="500"></p>
+<p>Overall, the areas with urban parks have cooler temperature compared to other areas.</p>
+<p>The Battery Park area, located in the financial district, shows the lowest temperature among all major park areas. This phenomenon can likely be attributed to the combined effect of the park’s cooling influence and the presence of commercial buildings in the area, as stated in the previous section. By looking at the financial district photo, it can be seen that the majority of buildings are skyscrapers. This architectural feature suggests that these tall buildings contribute significantly to shading the area, amplifying the cooling effect provided by the park’s trees and resulting in lower temperatures in the surroundings.</p>
+<p>Alternatively, the Flushing Meadows Corona Park area, which have a higher proportion of residential buildings compared to commercial buildings, exhibits a surface temperature surpassing other park areas. This phenomenon indicates potential factors contributing to the elevated temperatures. Firstly, building materials commonly used in residential construction, such as asphalt and concrete, may absorb and retain heat more than other materials. Moreover, the population density in residential areas could play a role. The relative lack of shade, due to shorter stature of residential buildings compared to commercial ones, contributes to increased heat exposure in the surroundings. This could mean a potential need for increased vegetative cover in those areas to mitigate the elevated temperature.</p>
 </section>
 <section id="is-there-a-corrleation-between-vegetative-cover-and-surface-temperature" class="level1">
 <h1>Is there a corrleation between vegetative cover and surface temperature</h1>
-<div class="cell" data-execution_count="10">
+<div class="cell" data-execution_count="4">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">#veg= 2143</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> json</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> <span class="bu">open</span>(<span class="st">'indicators_data/2143.json'</span>, <span class="st">'r'</span>) <span class="im">as</span> <span class="bu">file</span>:</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    v_data <span class="op">=</span> json.load(<span class="bu">file</span>)</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>v_data <span class="op">=</span> pd.DataFrame(v_data)</span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>v_data <span class="op">=</span> v_data[v_data[<span class="st">'GeoType'</span>]<span class="op">==</span><span class="st">'UHF42'</span>]</span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>merged_ny <span class="op">=</span> temp_data.merge(</span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    v_data,</span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    left_on<span class="op">=</span>[<span class="st">"GeoID"</span>],</span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    right_on<span class="op">=</span>[<span class="st">"GeoID"</span>])</span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>temp <span class="op">=</span> temp_data[temp_data[<span class="st">'GeoType'</span>]<span class="op">==</span><span class="st">'UHF42'</span>]</span>
-<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.stats <span class="im">import</span> pearsonr</span>
-<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>numerical_correlation, _ <span class="op">=</span> pearsonr(merged_ny[<span class="st">'Value_x'</span>], merged_ny[<span class="st">'Value_y'</span>])</span>
-<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Pearson's correlation coefficient: </span><span class="sc">{</span>numerical_correlation<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: true </span></span>
-<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a><span class="co">#| code-fold: true</span></span>
-<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>matplotlib inline</span>
-<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="dv">3</span>))</span>
-<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>sns.scatterplot(x<span class="op">=</span><span class="st">'Value_y'</span>, y<span class="op">=</span><span class="st">'Value_x'</span>, data<span class="op">=</span>merged_ny)</span>
-<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'vegetative cover Vs temperature'</span>)</span>
-<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'vegetation level'</span>)</span>
-<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'temperature'</span>)</span>
-<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">#veg= 2143</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> json</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> <span class="bu">open</span>(<span class="st">'indicators_data/2143.json'</span>, <span class="st">'r'</span>) <span class="im">as</span> <span class="bu">file</span>:</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    v_data <span class="op">=</span> json.load(<span class="bu">file</span>)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>v_data <span class="op">=</span> pd.DataFrame(v_data)</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>v_data <span class="op">=</span> v_data[v_data[<span class="st">'GeoType'</span>]<span class="op">==</span><span class="st">'UHF42'</span>]</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>merged_ny <span class="op">=</span> temp_data.merge(</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    v_data,</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    left_on<span class="op">=</span>[<span class="st">"GeoID"</span>],</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    right_on<span class="op">=</span>[<span class="st">"GeoID"</span>])</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>temp <span class="op">=</span> temp_data[temp_data[<span class="st">'GeoType'</span>]<span class="op">==</span><span class="st">'UHF42'</span>]</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.stats <span class="im">import</span> pearsonr</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>numerical_correlation, _ <span class="op">=</span> pearsonr(merged_ny[<span class="st">'Value_x'</span>], merged_ny[<span class="st">'Value_y'</span>])</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Pearson's correlation coefficient: </span><span class="sc">{</span>numerical_correlation<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: true </span></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>matplotlib inline</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="dv">3</span>))</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>sns.scatterplot(x<span class="op">=</span><span class="st">'Value_y'</span>, y<span class="op">=</span><span class="st">'Value_x'</span>, data<span class="op">=</span>merged_ny)</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'vegetative cover Vs temperature'</span>)</span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'vegetation level'</span>)</span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'temperature'</span>)</span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Pearson's correlation coefficient: -0.4628346272603856</code></pre>
 </div>
 <div class="cell-output cell-output-display">
-<p><img src="Estate_env_files/figure-html/cell-6-output-2.png" class="img-fluid"></p>
+<p><img src="Estate_env_files/figure-html/cell-5-output-2.png" class="img-fluid"></p>
 </div>
 </div>
+<p>A correlation of -0.46 indicates a moderate negative This mean that as vegetative cover increases, there is a tendency for temperatures to decrease. By Building more urban parks and planting more trees, this could mitigate the urban island heat effect in most areas of the city</p>
+</section>
+<section id="concluison" class="level1">
+<h1>Concluison</h1>
+<p>In conclusion, an analysis was conducted on the relationships between demographics, environmental factors, and real estate in the context of urban parks. This project could be used for further studies in different areas to enhance urban planning, policy making and overall urban community well being.</p>
 
 
 </section>

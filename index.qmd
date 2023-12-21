@@ -3,6 +3,27 @@ title: "MUSA 550 Final Project: The Impact of Urban Parks on Cities"
 subtitle: "This is a website that communicate the results of the project"
 ---
 
+Dataset (Urban Parks & Demographics): 
+
+-[2010 American Community Survey 5-Year Data](https://www.census.gov/data/developers/data-sets/acs-5year.html) accessed through API \
+-[2021 American Community Survey 5-Year Data]( https://www.census.gov/data/developers/data-sets/acs-5year.html) accessed through API\
+-[ NYC Shape files](https://www.census.gov/geographies/mapping-files/time-series/geo/tiger-line-file.html) \
+-[ NYC Parks Shape file]( https://nycopendata.socrata.com/City-Government/Parks-Zones/4j29-i5ry) \
+-[ Environment and Health Data Portal](https://github.com/nychealth/EHDP-data/tree/production/indicators)\
+-[Children Play Areas NYC ]( https://data.cityofnewyork.us/dataset/Children-s-Play-Areas-CPAs-/j55h-3upk)\
+-[ Athletic-Facilities NYC ]( https://data.cityofnewyork.us/dataset/Athletic-Facilities/qpgi-ckmp)\
+
+
+
+				
+Dataset (Real Estate & Environment): 
+
+-[Kaggle NYC Property Sales Data]( https://www.kaggle.com/datasets/datasciencedonut/current-nyc-property-sales/download?datasetVersionNumber=7) 
+\ 
+ -Note that this data is compressed in the Github due to size constraints. It must be extracted to run the code.\
+-[ NYC Shape files](https://www.census.gov/geographies/mapping-files/time-series/geo/tiger-line-file.html) \
+-[ NYC Parks Shape file]( https://nycopendata.socrata.com/City-Government/Parks-Zones/4j29-i5ry) \
+-[ Environment and Health Data Portal](https://github.com/nychealth/EHDP-data/tree/production/indicators)\
 
 
 
