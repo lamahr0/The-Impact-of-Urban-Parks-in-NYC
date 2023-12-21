@@ -6,8 +6,8 @@ project:
 
 website:
   title: "MUSA 550 Project"
-  site-url: "https://lamahr0.github.io/final-project-lama-alharbi/" 
-  repo-url: https://lamahr0.github.io/final-project-lama-alharbi/
+  site-url: "https://lamahr0.github.io/MUSA550_Project-/" 
+  repo-url: https://lamahr0.github.io/MUSA550_Project-/
   repo-actions: [source]
 
   page-footer:
